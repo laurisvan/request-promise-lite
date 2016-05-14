@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "description": "Lightweight, promiseful http/https request client",
   "main": "lib/index.js",
+  "repository" : { 
+    "type": "git",
+    "url": "https://github.com/laurisvan/request-promise-lite.git"
+  },
   "scripts": {
     "test": "node_modules/gulp/bin/gulp.js test",
     "build": "node_modules/gulp/bin/gulp.js build"
