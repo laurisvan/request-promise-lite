@@ -1,0 +1,15 @@
+{
+  "preset": "airbnb",
+
+  "disallowSpacesInsideParentheses": null,
+  "disallowEmptyBlocks": null,
+  "maximumLineLength": 256,
+
+  "validateIndentation": 2,
+  "requireCapitalizedConstructorsNew": true,
+
+  "excludeFiles": [
+    "**/node_modules/**"
+  ],
+  maxErrors: 1000
+}
