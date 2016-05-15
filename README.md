@@ -41,6 +41,9 @@ Use bundled classes (StreamReader):
         console.log(output.toString());
       }
 
+Use bundled classes (StreamReader):
+    var error = new request.RequestError('I'm a teapot!', 417, 'teapot');
+
 ### Supported options
 
 Node.js [http/https request options](https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_http_request_options_callback)
@@ -48,8 +51,11 @@ are passed forward as-is. In addition the following shorthand options are suppor
 
     // Options & their default values
     let defaults = {
+      headers: {},      // The headers to pass forward (as-is)
       maxRedirects: 3,  // How many redirects to follow
       json: false,      // JSON shortcut for req headers & response parsing
+      agent: false,     // The HTTP agent for subsequent calls
+      resolveWithFullResponse: false, // Resolve with the response, not the body
     };
 
 ## Features
@@ -57,29 +63,41 @@ are passed forward as-is. In addition the following shorthand options are suppor
 A few tests have been written, with a few options supported. Here's a result of a test run:
 
   ```
-  Request
-    ✓ Supports HTTP (272ms)
-    ✓ Supports HTTPS (494ms)
-    ✓ Supports query string parameters in URL (494ms)
-    ✓ Accepts custom headers (495ms)
-    ✓ Supports 301-303 redirects (1043ms)
-    - Supports TLS with passphrase
-    - Performs POST requests
-    - Performs PUT requests
-    - Performs DELETE requests
+  RequestError
+    ✓ Supports message, status code and response
+    - Stringifies to a meaningful message
+
+  Request - test against httpbin.org
+    ✓ Supports HTTP (288ms)
+    ✓ Supports HTTPS (565ms)
+    ✓ Supports query string parameters in URL (405ms)
+    ✓ Accepts custom headers (385ms)
+    ✓ Interprets empty response with JSON request as null (256ms)
+    ✓ Supports 301-303 redirects (786ms)
+    ✓ Rejects on 4xx errors (270ms)
+    ✓ Limits the maximum number of 301-303 redirects (405ms)
+    ✓ Performs POST requests (270ms)
+    ✓ Performs PUT requests (255ms)
+    ✓ Performs DELETE requests (309ms)
+    ✓ Supports TLS with passphrase
+    ✓ Supports null options (384ms)
+    ✓ Supports 'json' in options (284ms)
+    ✓ Supports 'resolveWithFullResponse' in options (277ms)
+    - Supports 'form' option
+    - Supports 'multipart' bodies
 
   StreamReader
     ✓ Reads a stream fully
     - Fails gracefully on invalid stream
 
   index.js wrapper
-    ✓ Nested methods - request.get (243ms)
-    ✓ Nested classes - request.Request (494ms)
+    ✓ Nested methods - request.get (271ms)
+    ✓ Nested classes - request.Request (413ms)
     ✓ Nested classes - request.StreamReader
 
 
-  9 passing (4s)
-  5 pending
+  20 passing (6s)
+  4 pending
   ```
 
 ## Building

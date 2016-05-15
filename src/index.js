@@ -1,5 +1,6 @@
 import Request from './Request';
 import StreamReader from './StreamReader';
+import RequestError from './RequestError';
 
 /**
  * Default handler that creates a new client and executes it
@@ -14,7 +15,8 @@ export default {
   get: handleRequest.bind(null, 'GET'),
   put: handleRequest.bind(null, 'PUT'),
   post: handleRequest.bind(null, 'POST'),
-  delete: handleRequest.bind(null, 'DELETE'),
+  del: handleRequest.bind(null, 'DELETE'),
   Request: Request,
   StreamReader: StreamReader,
+  RequestError: RequestError,
 };

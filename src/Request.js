@@ -4,6 +4,7 @@ import https from 'https';
 import urlParser from 'url';
 import querystring from 'querystring';
 import StreamReader from './StreamReader';
+import RequestError from './RequestError';
 
 /**
  * @typedef {Object} Request
@@ -66,75 +67,91 @@ export default class Request {
     return parsed;
   }
 
-  static parseOptions(method, url, opts) {
-    // Handle defaults
-    opts = opts || {};
-    opts.headers = opts.headers || {};
-
-    // Form options for the request
-    let options = {
-      method: method,
-      hostname: url.hostname,
-      port: url.port,
-      path: url.path,
-      headers: opts.headers,
-      agent: false,
-      pfx: opts.pfx,
-      passphrase: opts.passphrase,
-      rejectUnauthorized: opts.rejectUnauthorized,
-    };
-
-    // Handle the few known options cases
-    if (opts.json) {
-      options.headers.Accept = 'application/json';
-    }
-
-    // Reject on some functions we don't have a polyfill for
-    if (opts.form) {
-      throw new Error('Form sending not supported yet.');
-    }
-
-    return options;
-  }
-
   constructor(method, url, options) {
+    // Defaults
+    options = options || {};
+
     // Options & their default values
     let defaults = {
+      headers: {},      // The headers to pass forward (as-is)
       maxRedirects: 3,  // How many redirects to follow
       json: false,      // JSON shortcut for req headers & response parsing
+      agent: false,     // The HTTP agent for subsequent calls
+      resolveWithFullResponse: false, // Resolve with the response, not the body
     };
 
     this.options = Object.assign({}, defaults, options);
     this.method = method;
     this.url = Request.parseUrl(url, options);
-    this.transportOptions = Request.parseOptions(method, this.url, options);
+
+    // Parse the input options (affects the instance attributes)
+    this.parseOptions();
+  }
+
+  parseOptions() {
+    let method = this.method;
+    let url = this.url;
+    let options = this.options;
+
+    // Form the transport options from input options
+    let transOpts = {
+      method: method,
+      hostname: url.hostname,
+      port: url.port,
+      path: url.path,
+      headers: options.headers,
+      pfx: options.pfx,
+      passphrase: options.passphrase,
+      rejectUnauthorized: options.rejectUnauthorized,
+    };
+    let body = options.body;
+
+    // Handle the few known options cases - alter both
+    // transport options and generics
+    if (options.json) {
+      transOpts.headers.Accept = 'application/json';
+
+      if (typeof body === 'object') {
+        body = JSON.stringify(body);
+      }
+    }
+
+    // Reject on some functions we don't have a polyfill for
+    if (options.form) {
+      throw new Error('Form sending not supported yet.');
+    }
+
+    // Update instance attributes
+    this.transportOptions = transOpts;
+    this.body = body;
   }
 
   run() {
     return this.handleRequest()
-      .then(this.handleResponse.bind(this))
-      .then(this.resolve.bind(this));
+      .then(this.handleResponse.bind(this));
   }
 
-  resolve(packet) {
+  createResponse(response, body) {
     let _this = this;
 
-    return new Promise((resolve, reject) => {
-      let body = packet.body;
-      let response = packet.response;
+    // Handle the few known special cases
+    if (_this.options.json) {
+      let str = body.toString();
 
-      // Handle the few known special cases
-      if (_this.options.json) {
-        body = JSON.parse(body.toString());
+      // Special case: Handle empty strings
+      if (str.length !== 0) {
+        body = JSON.parse(str);
+      } else {
+        body = null;
       }
+    }
 
-      if (_this.options.resolveWithFullResponse) {
-        response.body = body;
-        return resolve(response);
-      }
+    if (_this.options.resolveWithFullResponse) {
+      response.body = body;
+      return response;
+    }
 
-      return resolve(body);
-    });
+    return body;
   }
 
   handleResponse(res) {
@@ -154,15 +171,14 @@ export default class Request {
 
       // Recurse with a new request. Don't use the options
       // query string, as it is already encoded in the new location
-      // TODO Find a cleaner way of playing with options
-      let newOpts = {
-        maxRedirects: options.maxRedirects - 1,
-        method: options.method,
-        json: options.json,
-        headers: options.headers,
-        passphrase: options.passphrase,
-        rejectUnauthorized: options.rejectUnauthorized,
-      };
+      let newOpts = Object.assign({}, options);
+
+      if (newOpts.qs) {
+        delete newOpts.qs;
+      }
+
+      newOpts.maxRedirects = options.maxRedirects - 1;
+
       let request = new Request(_this.method, location, newOpts);
       return request.handleRequest()
         .then(request.handleResponse.bind(request));
@@ -171,11 +187,16 @@ export default class Request {
     // Handle success cases
     if (status >= 200 && status < 300) {
       return reader.readAll(res)
-        .then((body) => Promise.resolve({ response: res, body: body }));
+        .then((body) => Promise.resolve(this.createResponse(res, body)));
     }
 
     // All other cases
-    return Promise.reject(new Error('Error in response ' + status));
+    return reader.readAll(res)
+      .then((body) => {
+        let response = this.createResponse(res, body);
+        let error = new RequestError('Error in response', status, response);
+        return Promise.reject(error);
+      });
   }
 
   handleRequest(method, url, opts) {
@@ -184,10 +205,16 @@ export default class Request {
     return new Promise((resolve, reject) => {
       // Choose the transport
       let transport = Request.chooseTransport(_this.url.protocol);
-      let opts = this.transportOptions;
+      let transOpts = this.transportOptions;
 
       // Process the request
-      let req = transport.request(opts, (res) => resolve(res));
+      let req = transport.request(transOpts, (res) => resolve(res));
+
+      // If we have a body, it should be written
+      if (this.body) {
+        req.write(this.body);
+      }
+
       req.end();
     });
   }
