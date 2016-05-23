@@ -68,22 +68,24 @@ A few tests have been written, with a few options supported. Here's a result of 
     - Stringifies to a meaningful message
 
   Request - test against httpbin.org
-    ✓ Supports HTTP (288ms)
-    ✓ Supports HTTPS (565ms)
-    ✓ Supports query string parameters in URL (405ms)
-    ✓ Accepts custom headers (385ms)
-    ✓ Interprets empty response with JSON request as null (256ms)
-    ✓ Supports 301-303 redirects (786ms)
-    ✓ Rejects on 4xx errors (270ms)
-    ✓ Limits the maximum number of 301-303 redirects (405ms)
-    ✓ Performs POST requests (270ms)
-    ✓ Performs PUT requests (255ms)
-    ✓ Performs DELETE requests (309ms)
+    ✓ Supports HTTP (273ms)
+    ✓ Supports HTTPS (499ms)
+    - Supports HTTP as the default protocol (if none given)
+    ✓ Supports query string parameters in URL (365ms)
+    ✓ Accepts custom headers (356ms)
+    - Interprets empty response with JSON request as null
+    ✓ Supports 301-303 redirects (721ms)
+    ✓ Rejects on 4xx errors (247ms)
+    ✓ Limits the maximum number of 301-303 redirects (372ms)
+    ✓ Performs POST requests (242ms)
+    ✓ Performs PUT requests (248ms)
+    ✓ Performs DELETE requests (242ms)
     ✓ Supports TLS with passphrase
-    ✓ Supports null options (384ms)
-    ✓ Supports 'json' in options (284ms)
-    ✓ Supports 'resolveWithFullResponse' in options (277ms)
-    - Supports 'form' option
+    ✓ Supports HTTP Basic Auth (365ms)
+    ✓ Supports null options (370ms)
+    ✓ Supports 'json' in options (248ms)
+    ✓ Supports 'form' in options (x-www-form-urlencoded) (249ms)
+    ✓ Supports 'resolveWithFullResponse' in options (244ms)
     - Supports 'multipart' bodies
 
   StreamReader
@@ -91,13 +93,13 @@ A few tests have been written, with a few options supported. Here's a result of 
     - Fails gracefully on invalid stream
 
   index.js wrapper
-    ✓ Nested methods - request.get (271ms)
-    ✓ Nested classes - request.Request (413ms)
+    ✓ Nested methods - request.get (249ms)
+    ✓ Nested classes - request.Request (361ms)
     ✓ Nested classes - request.StreamReader
 
 
-  20 passing (6s)
-  4 pending
+  21 passing (6s)
+  5 pending
   ```
 
 ## Building

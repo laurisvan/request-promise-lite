@@ -1,4 +1,4 @@
-import Promise  from 'bluebird';
+import Promise from 'bluebird';
 import http from 'http';
 import https from 'https';
 import urlParser from 'url';
@@ -109,6 +109,7 @@ export default class Request {
     // Handle the few known options cases - alter both
     // transport options and generics
     if (options.json) {
+      transOpts.headers['Content-Type'] = 'application/json';
       transOpts.headers.Accept = 'application/json';
 
       if (typeof body === 'object') {
@@ -116,9 +117,25 @@ export default class Request {
       }
     }
 
-    // Reject on some functions we don't have a polyfill for
     if (options.form) {
-      throw new Error('Form sending not supported yet.');
+      if (typeof options.form !== 'object') {
+        throw new Error('Incompatible form data: ', options.form);
+      }
+
+      body = querystring.stringify(options.form);
+      transOpts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      transOpts.headers.Accept = 'application/json';
+    }
+
+    if (options.auth) {
+      if (typeof options.auth !== 'object') {
+        throw new Error('Incompatible auth data', options.auth);
+      }
+
+      var user = options.auth.user || options.auth.username;
+      var password = options.auth.pass || options.auth.password;
+
+      transOpts.auth = user + ':' + password;
     }
 
     // Update instance attributes
@@ -132,13 +149,9 @@ export default class Request {
   }
 
   createResponse(response, body) {
-    let _this = this;
-
     // Handle the few known special cases
-    if (_this.options.json) {
-      let str = body.toString();
-
-      // Special case: Handle empty strings
+    if (this.options.json) {
+      var str = body.toString();
       if (str.length !== 0) {
         body = JSON.parse(str);
       } else {
@@ -146,7 +159,7 @@ export default class Request {
       }
     }
 
-    if (_this.options.resolveWithFullResponse) {
+    if (this.options.resolveWithFullResponse) {
       response.body = body;
       return response;
     }

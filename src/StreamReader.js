@@ -52,10 +52,18 @@ export default class StreamReader extends stream.Writable {
     // Else listen for the end or error events
     let handleFinished = () => {
       resolve(Buffer.concat(this.buffers));
+
+      this.removeListener('finish', handleData);
+      this.removeListener('finish', handleFinished);
+      this.removeListener('error', handleError);
     };
 
     let handleError = (error) => {
       reject(error);
+
+      this.removeListener('finish', handleData);
+      this.removeListener('finish', handleFinished);
+      this.removeListener('error', handleError);
     };
 
     let handleData = (data) => {
@@ -78,11 +86,6 @@ export default class StreamReader extends stream.Writable {
 
       this.once('finish', handleFinished);
       this.once('error', handleError);
-    })
-    .finally((output) => {
-      this.removeListener('finish', handleData);
-      this.removeListener('finish', handleFinished);
-      this.removeListener('error', handleError);
     });
   }
 }
