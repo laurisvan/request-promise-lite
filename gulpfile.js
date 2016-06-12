@@ -54,7 +54,9 @@ gulp.task('default', function () {
     .pipe(sourcemaps.init())
     .pipe(babel({
       presets: ['es2015-node4'],
-      plugins: ['add-module-exports']
+      plugins: ['add-module-exports'],
+      comments: false,
+      babelrc: false,
     }))
     .on('error', reportError)
     .pipe(sourcemaps.write('.'))
