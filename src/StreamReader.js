@@ -45,8 +45,8 @@ export default class StreamReader extends stream.Writable {
    * @return Buffer containing the stream contents
    */
   readAll() {
-    var resolve;
-    var reject;
+    let resolve;
+    let reject;
     let handleData;
     let handleFinished;
     let handleError;

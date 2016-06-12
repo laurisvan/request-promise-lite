@@ -131,8 +131,8 @@ export default class Request {
         throw new Error('Incompatible auth data', options.auth);
       }
 
-      var user = options.auth.user || options.auth.username;
-      var password = options.auth.pass || options.auth.password;
+      const user = options.auth.user || options.auth.username;
+      const password = options.auth.pass || options.auth.password;
 
       transOpts.auth = user + ':' + password;
     }
@@ -150,7 +150,7 @@ export default class Request {
   createResponse(response, body) {
     // Handle the few known special cases
     if (this.options.json) {
-      var str = body.toString();
+      const str = body.toString();
       if (str.length !== 0) {
         body = JSON.parse(str);
       } else {

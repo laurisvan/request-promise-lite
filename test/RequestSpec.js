@@ -1,13 +1,17 @@
+// jshint -W034
+// Node needs the declaration to permit usage of 'let' */
+'use strict';
+
 const expect = require('chai').expect;
 const Request = require('../lib/Request');
 
 describe('Request - test against httpbin.org', () => {
 
-  var request;
-  var url;
-  var headers;
-  var body;
-  var auth;
+  let request;
+  let url;
+  let headers;
+  let body;
+  let auth;
 
   it('Supports HTTP', () => {
     url = 'http://httpbin.org/get';

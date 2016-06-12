@@ -1,3 +1,7 @@
+// jshint -W034
+// Node needs the declaration to permit usage of 'let' */
+'use strict';
+
 const path = require('path');
 const fs = require('fs');
 const util = require('util');
@@ -9,13 +13,13 @@ const StreamReader = require('../lib/StreamReader');
 describe('StreamReader', () => {
 
   it('Reads a stream fully', () => {
-    var filePath = path.resolve(__dirname, './fixtures/sample.json');
-    var stream = fs.createReadStream(filePath);
-    var reader = new StreamReader(stream);
+    let filePath = path.resolve(__dirname, './fixtures/sample.json');
+    let stream = fs.createReadStream(filePath);
+    let reader = new StreamReader(stream);
 
     return reader.readAll()
       .then((output) => {
-        var str = output.toString();
+        let str = output.toString();
 
         expect(str).to.equal(JSON.stringify(fixture, null, 2));
       });
@@ -31,9 +35,9 @@ describe('StreamReader', () => {
     };
 
     util.inherits(MockStream, stream.Readable);
-    var mock = new MockStream();
-    var reader = new StreamReader(mock);
-    var err = new Error('Bogus error');
+    let mock = new MockStream();
+    let reader = new StreamReader(mock);
+    let err = new Error('Bogus error');
     process.nextTick(() => {
       reader.emit('error', err);
     });

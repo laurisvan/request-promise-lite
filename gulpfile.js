@@ -15,14 +15,14 @@ gulp.task('jsonlint', function () {
 });
 
 gulp.task('jshint', function () {
-  return gulp.src(['src/**/*.js', 'test/**/*.js'])
+  return gulp.src(['src/**/*.js', 'test/**/*.js', 'gulpfile.js'])
     .pipe(jshint())
     .pipe(jshint.reporter('jshint-stylish'))
     .pipe(jshint.reporter('fail'));
 });
 
 gulp.task('jscs', function () {
-  return gulp.src(['src/**/*.js', 'test/**/*.js'])
+  return gulp.src(['src/**/*.js', 'test/**/*.js', 'gulpfile.js'])
     .pipe(jscs())
     .pipe(jscs.reporter())
     .pipe(jscs.reporter('fail'));
@@ -33,8 +33,8 @@ gulp.task('mocha', function () {
     .pipe(gMocha());
 });
 
-gulp.task('watch', function() {
-  gulp.watch(['src/**/*.js'], ['default']);
+gulp.task('watch', function () {
+  return gulp.watch(['src/**/*.js'], ['default']);
 });
 
 gulp.task('default', function () {
@@ -42,6 +42,7 @@ gulp.task('default', function () {
     // If you want details of the error in the console
     console.warn(error.toString());
     console.warn(error.message);
+
     // jshint validthis: true
     this.emit('end');
   }
@@ -50,7 +51,7 @@ gulp.task('default', function () {
   gulp.src(['src/**/*.json'])
     .pipe(gulp.dest('lib'));
 
-  return gulp.src([ 'src/**/*.js' ])
+  return gulp.src(['src/**/*.js'])
     .pipe(sourcemaps.init())
     .pipe(babel({
       presets: ['es2015-node4'],

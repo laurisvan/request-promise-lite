@@ -1,3 +1,7 @@
+// jshint -W034
+// Node needs the declaration to permit usage of 'let' */
+'use strict';
+
 const path = require('path');
 const fs = require('fs');
 const expect = require('chai').expect;
@@ -12,21 +16,21 @@ describe('index.js wrapper', () => {
   );
 
   it('Nested classes - request.Request', () => {
-    var url = 'https://httpbin.org/get';
-    var req = new request.Request('GET', url, { json: true });
+    let url = 'https://httpbin.org/get';
+    let req = new request.Request('GET', url, { json: true });
 
     return req.run()
       .then((response) => expect(response).to.exist);
   });
 
   it('Nested classes - request.StreamReader', () => {
-    var filePath = path.resolve(__dirname, './fixtures/sample.json');
-    var stream = fs.createReadStream(filePath);
-    var reader = new request.StreamReader(stream);
+    let filePath = path.resolve(__dirname, './fixtures/sample.json');
+    let stream = fs.createReadStream(filePath);
+    let reader = new request.StreamReader(stream);
 
     return reader.readAll()
       .then((output) => {
-        var str = output.toString();
+        let str = output.toString();
 
         expect(str).to.equal(JSON.stringify(fixture, null, 2));
       });

@@ -1,12 +1,16 @@
+// jshint -W034
+// Node needs the declaration to permit usage of 'let' */
+'use strict';
+
 const expect = require('chai').expect;
 const RequestError = require('../lib/RequestError');
 
 describe('RequestError', () => {
 
-  var message = 'foo';
-  var status = 303;
-  var response = { foo: 'bar' };
-  var error = new RequestError(message, status, response);
+  let message = 'foo';
+  let status = 303;
+  let response = { foo: 'bar' };
+  let error = new RequestError(message, status, response);
 
   it('Supports message, status code and response', () => {
     expect(error.message).to.equal(message);
