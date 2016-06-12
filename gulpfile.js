@@ -53,8 +53,8 @@ gulp.task('default', function () {
   return gulp.src([ 'src/**/*.js' ])
     .pipe(sourcemaps.init())
     .pipe(babel({
-      presets: ['es2015'],
-      plugins: [/*'transform-runtime', */'add-module-exports']
+      presets: ['es2015-node4'],
+      plugins: ['add-module-exports']
     }))
     .on('error', reportError)
     .pipe(sourcemaps.write('.'))

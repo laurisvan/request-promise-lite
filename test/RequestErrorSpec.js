@@ -14,7 +14,7 @@ describe('RequestError', () => {
     expect(error.response).to.equal(response);
   });
 
-  xit('Stringifies to a meaningful message', () => {
+  it('Stringifies to a meaningful message', () => {
     expect(error.toString()).to.match(/\d{3}:.+/);
   });
 });

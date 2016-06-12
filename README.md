@@ -6,8 +6,7 @@
 # request-promise-lite
 
 This is a lightweight HTTP Promise client, somewhat compatible with
-[request-promise](https://www.npmjs.com/package/request-promise).
-It can be used as a replacement where the original client is too heavy, e.g. as part of AWS Lambda functions, or with WebPack.
+[request-promise](https://www.npmjs.com/package/request-promise) for node.js 4 or later. It can be used as a replacement where the original client is too heavy, e.g. as part of AWS Lambda functions, or with WebPack.
 
 ## Usage
 
@@ -65,27 +64,27 @@ A few tests have been written, with a few options supported. Here's a result of 
   ```
   RequestError
     ✓ Supports message, status code and response
-    - Stringifies to a meaningful message
+    ✓ Stringifies to a meaningful message
 
   Request - test against httpbin.org
-    ✓ Supports HTTP (273ms)
-    ✓ Supports HTTPS (499ms)
+    ✓ Supports HTTP (293ms)
+    ✓ Supports HTTPS (559ms)
     - Supports HTTP as the default protocol (if none given)
-    ✓ Supports query string parameters in URL (365ms)
-    ✓ Accepts custom headers (356ms)
+    ✓ Supports query string parameters in URL (409ms)
+    ✓ Accepts custom headers (405ms)
     - Interprets empty response with JSON request as null
-    ✓ Supports 301-303 redirects (721ms)
-    ✓ Rejects on 4xx errors (247ms)
-    ✓ Limits the maximum number of 301-303 redirects (372ms)
-    ✓ Performs POST requests (242ms)
-    ✓ Performs PUT requests (248ms)
-    ✓ Performs DELETE requests (242ms)
+    ✓ Supports 301-303 redirects (756ms)
+    ✓ Rejects on 4xx errors (269ms)
+    ✓ Limits the maximum number of 301-303 redirects (406ms)
+    ✓ Performs POST requests (269ms)
+    ✓ Performs PUT requests (261ms)
+    ✓ Performs DELETE requests (259ms)
     ✓ Supports TLS with passphrase
-    ✓ Supports HTTP Basic Auth (365ms)
-    ✓ Supports null options (370ms)
-    ✓ Supports 'json' in options (248ms)
-    ✓ Supports 'form' in options (x-www-form-urlencoded) (249ms)
-    ✓ Supports 'resolveWithFullResponse' in options (244ms)
+    ✓ Supports HTTP Basic Auth (417ms)
+    ✓ Supports null options (384ms)
+    ✓ Supports 'json' in options (276ms)
+    ✓ Supports 'form' in options (x-www-form-urlencoded) (275ms)
+    ✓ Supports 'resolveWithFullResponse' in options (260ms)
     - Supports 'multipart' bodies
 
   StreamReader
@@ -93,13 +92,13 @@ A few tests have been written, with a few options supported. Here's a result of 
     - Fails gracefully on invalid stream
 
   index.js wrapper
-    ✓ Nested methods - request.get (249ms)
-    ✓ Nested classes - request.Request (361ms)
+    ✓ Nested methods - request.get (262ms)
+    ✓ Nested classes - request.Request (408ms)
     ✓ Nested classes - request.StreamReader
 
 
-  21 passing (6s)
-  5 pending
+  22 passing (6s)
+  4 pending
   ```
 
 ## Building
