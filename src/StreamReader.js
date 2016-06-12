@@ -1,4 +1,3 @@
-import Promise from 'bluebird';
 import stream from 'stream';
 
 /**

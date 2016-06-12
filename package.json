@@ -38,9 +38,7 @@
     "sinon": "^1.17.3",
     "source-map-support": "^0.4.0"
   },
-  "dependencies": {
-    "bluebird": "^3.3.5"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=4.2"
   }

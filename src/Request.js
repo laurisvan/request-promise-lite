@@ -1,4 +1,3 @@
-import Promise from 'bluebird';
 import http from 'http';
 import https from 'https';
 import urlParser from 'url';
