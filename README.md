@@ -41,6 +41,7 @@ Use bundled classes (StreamReader):
       }
 
 Use bundled classes (StreamReader):
+
     var error = new request.RequestError('I'm a teapot!', 417, 'teapot');
 
 ### Supported options

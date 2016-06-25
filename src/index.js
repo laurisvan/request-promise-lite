@@ -6,7 +6,7 @@ import RequestError from './RequestError';
  * Default handler that creates a new client and executes it
  */
 function handleRequest(method, url, options) {
-  let request = new Request(method, url, options);
+  const request = new Request(method, url, options);
 
   return request.run();
 }

@@ -45,49 +45,49 @@ export default class StreamReader extends stream.Writable {
    * @return Buffer containing the stream contents
    */
   readAll() {
-    let resolve;
-    let reject;
-    let handleData;
-    let handleFinished;
-    let handleError;
+    const _this = this;
+    const promise = new Promise((resolve, reject) => {
 
-    handleData = (data) => {
-      this.buffers.push(data);
-    };
+      function cleanup() {
+        /* eslint-disable no-use-before-define */
+        _this.removeListener('finish', handleData);
+        _this.removeListener('finish', handleFinished);
+        _this.removeListener('error', handleError);
 
-    // Else listen for the end or error events
-    handleFinished = () => {
-      resolve(Buffer.concat(this.buffers));
+        /* eslint-enable no-use-before-define */
+      }
 
-      this.removeListener('finish', handleData);
-      this.removeListener('finish', handleFinished);
-      this.removeListener('error', handleError);
-    };
+      function handleData(data) {
+        _this.buffers.push(data);
+      }
 
-    handleError = (error) => {
-      reject(error);
+      function handleError(error) {
+        reject(error);
+        cleanup();
+      }
 
-      this.removeListener('finish', handleData);
-      this.removeListener('finish', handleFinished);
-      this.removeListener('error', handleError);
-    };
-
-    return new Promise((_resolve, _reject) => {
-      resolve = _resolve;
-      reject = _reject;
+      // Else listen for the end or error events
+      function handleFinished() {
+        resolve(Buffer.concat(_this.buffers));
+        cleanup();
+      }
 
       // Check if the stream has errored already
-      if (this.error) {
-        return reject(this.error);
+      if (_this.error) {
+        reject(_this.error);
+        return;
       }
 
       // Check if the readable is drained already
-      if (this.finished) {
-        return resolve(Buffer.concat(this.buffers));
+      if (_this.finished) {
+        resolve(Buffer.concat(_this.buffers));
+        return;
       }
 
-      this.once('finish', handleFinished);
-      this.once('error', handleError);
+      _this.once('finish', handleFinished);
+      _this.once('error', handleError);
     });
+
+    return promise;
   }
 }

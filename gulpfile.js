@@ -1,49 +1,32 @@
 const gulp = require('gulp');
 const babel = require('gulp-babel');
 const sourcemaps = require('gulp-sourcemaps');
-const jsonlint = require('gulp-jsonlint');
-const jshint = require('gulp-jshint');
-const jscs = require('gulp-jscs');
+const eslint = require('gulp-eslint');
 const gMocha = require('gulp-mocha');
 const gSequence = require('gulp-sequence');
 
-gulp.task('jsonlint', function () {
-  return gulp.src(['**/*.json', '!**/node_modules/**/*.json', '!www/**/*.json', '!_meta/**/*.json'])
-    .pipe(jsonlint())
-    .pipe(jsonlint.reporter())
-    .pipe(jsonlint.failOnError());
-});
-
-gulp.task('jshint', function () {
+gulp.task('eslint', () => {
   return gulp.src(['src/**/*.js', 'test/**/*.js', 'gulpfile.js'])
-    .pipe(jshint())
-    .pipe(jshint.reporter('jshint-stylish'))
-    .pipe(jshint.reporter('fail'));
+    .pipe(eslint())
+    .pipe(eslint.format())
+    .pipe(eslint.failAfterError());
 });
 
-gulp.task('jscs', function () {
-  return gulp.src(['src/**/*.js', 'test/**/*.js', 'gulpfile.js'])
-    .pipe(jscs())
-    .pipe(jscs.reporter())
-    .pipe(jscs.reporter('fail'));
-});
-
-gulp.task('mocha', function () {
+gulp.task('mocha', () => {
   return gulp.src('test/test.js', { read: false, timeout: 5000 })
     .pipe(gMocha());
 });
 
-gulp.task('watch', function () {
+gulp.task('watch', () => {
   return gulp.watch(['src/**/*.js'], ['default']);
 });
 
-gulp.task('default', function () {
+gulp.task('default', () => {
   function reportError(error) {
     // If you want details of the error in the console
     console.warn(error.toString());
     console.warn(error.message);
 
-    // jshint validthis: true
     this.emit('end');
   }
 
@@ -65,6 +48,6 @@ gulp.task('default', function () {
 });
 
 // Aliases
-gulp.task('validate', ['jsonlint', 'jshint', 'jscs']);
+gulp.task('validate', ['eslint']);
 gulp.task('test', gSequence('validate', 'mocha'));
 gulp.task('build', ['default']);

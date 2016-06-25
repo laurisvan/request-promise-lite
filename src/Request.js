@@ -34,8 +34,8 @@ export default class Request {
       return querystring.stringify(map);
     }
 
-    let tokens = (Object.keys(map)).map((key) => {
-      let unparsedValues = map[key];
+    const tokens = (Object.keys(map)).map(key => {
+      const unparsedValues = map[key];
       let values;
 
       if (!unparsedValues) {
@@ -48,7 +48,7 @@ export default class Request {
         values = [encodeURIComponent(unparsedValues)];
       }
 
-      let value = values.join(',');
+      const value = values.join(',');
       return [encodeURIComponent(key), value].join('=');
     });
 
@@ -71,7 +71,7 @@ export default class Request {
     options = options || {};
 
     // Options & their default values
-    let defaults = {
+    const defaults = {
       headers: {},      // The headers to pass forward (as-is)
       maxRedirects: 3,  // How many redirects to follow
       json: false,      // JSON shortcut for req headers & response parsing
@@ -88,12 +88,12 @@ export default class Request {
   }
 
   parseOptions() {
-    let method = this.method;
-    let url = this.url;
-    let options = this.options;
+    const method = this.method;
+    const url = this.url;
+    const options = this.options;
 
     // Form the transport options from input options
-    let transOpts = {
+    const transOpts = {
       method: method,
       hostname: url.hostname,
       port: url.port,
@@ -167,14 +167,14 @@ export default class Request {
   }
 
   handleResponse(res) {
-    let status = res.statusCode;
-    let reader = new StreamReader(res);
-    let _this = this;
+    const status = res.statusCode;
+    const reader = new StreamReader(res);
+    const _this = this;
 
     // Handle redirects
-    if (301 <= status && status <= 303) {
-      let location = res.headers.location;
-      let options = _this.options;
+    if (status >= 301 && status <= 303) {
+      const location = res.headers.location;
+      const options = _this.options;
 
       // If we're out of the redirect quota, reject
       if (options.maxRedirects < 1) {
@@ -183,7 +183,7 @@ export default class Request {
 
       // Recurse with a new request. Don't use the options
       // query string, as it is already encoded in the new location
-      let newOpts = Object.assign({}, options);
+      const newOpts = Object.assign({}, options);
 
       if (newOpts.qs) {
         delete newOpts.qs;
@@ -191,7 +191,7 @@ export default class Request {
 
       newOpts.maxRedirects = options.maxRedirects - 1;
 
-      let request = new Request(_this.method, location, newOpts);
+      const request = new Request(_this.method, location, newOpts);
       return request.handleRequest()
         .then(request.handleResponse.bind(request));
     }
@@ -199,28 +199,28 @@ export default class Request {
     // Handle success cases
     if (status >= 200 && status < 300) {
       return reader.readAll(res)
-        .then((body) => Promise.resolve(this.createResponse(res, body)));
+        .then(body => Promise.resolve(this.createResponse(res, body)));
     }
 
     // All other cases
     return reader.readAll(res)
-      .then((body) => {
-        let response = this.createResponse(res, body);
-        let error = new RequestError('Error in response', status, response);
+      .then(body => {
+        const response = this.createResponse(res, body);
+        const error = new RequestError('Error in response', status, response);
         return Promise.reject(error);
       });
   }
 
   handleRequest(method, url, opts) {
-    let _this = this;
+    const _this = this;
 
     return new Promise((resolve, reject) => {
       // Choose the transport
-      let transport = Request.chooseTransport(_this.url.protocol);
-      let transOpts = this.transportOptions;
+      const transport = Request.chooseTransport(_this.url.protocol);
+      const transOpts = this.transportOptions;
 
       // Process the request
-      let req = transport.request(transOpts, (res) => resolve(res));
+      const req = transport.request(transOpts, res => resolve(res));
 
       // If we have a body, it should be written
       if (this.body) {

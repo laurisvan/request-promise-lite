@@ -1,4 +1,4 @@
-describe('request-promise-light', function () {
+describe('request-promise-light', () => {
   require('./StreamReaderSpec.js');
   require('./RequestSpec.js');
   require('./RequestErrorSpec.js');

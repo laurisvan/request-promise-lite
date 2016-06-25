@@ -1,5 +1,5 @@
-// jshint -W034
 // Node needs the declaration to permit usage of 'let' */
+// eslint-disable-next-line strict
 'use strict';
 
 const path = require('path');
@@ -12,25 +12,25 @@ describe('index.js wrapper', () => {
 
   it('Nested methods - request.get', () =>
     request.get('http://httpbin.org/get', { json: true })
-      .then((response) => expect(response).to.exist)
+      .then(response => expect(response).to.exist)
   );
 
   it('Nested classes - request.Request', () => {
-    let url = 'https://httpbin.org/get';
-    let req = new request.Request('GET', url, { json: true });
+    const url = 'https://httpbin.org/get';
+    const req = new request.Request('GET', url, { json: true });
 
     return req.run()
-      .then((response) => expect(response).to.exist);
+      .then(response => expect(response).to.exist);
   });
 
   it('Nested classes - request.StreamReader', () => {
-    let filePath = path.resolve(__dirname, './fixtures/sample.json');
-    let stream = fs.createReadStream(filePath);
-    let reader = new request.StreamReader(stream);
+    const filePath = path.resolve(__dirname, './fixtures/sample.json');
+    const stream = fs.createReadStream(filePath);
+    const reader = new request.StreamReader(stream);
 
     return reader.readAll()
-      .then((output) => {
-        let str = output.toString();
+      .then(output => {
+        const str = output.toString();
 
         expect(str).to.equal(JSON.stringify(fixture, null, 2));
       });

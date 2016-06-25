@@ -1,5 +1,5 @@
-// jshint -W034
 // Node needs the declaration to permit usage of 'let' */
+// eslint-disable-next-line strict
 'use strict';
 
 const path = require('path');
@@ -13,13 +13,13 @@ const StreamReader = require('../lib/StreamReader');
 describe('StreamReader', () => {
 
   it('Reads a stream fully', () => {
-    let filePath = path.resolve(__dirname, './fixtures/sample.json');
-    let stream = fs.createReadStream(filePath);
-    let reader = new StreamReader(stream);
+    const filePath = path.resolve(__dirname, './fixtures/sample.json');
+    const stream = fs.createReadStream(filePath);
+    const reader = new StreamReader(stream);
 
     return reader.readAll()
-      .then((output) => {
-        let str = output.toString();
+      .then(output => {
+        const str = output.toString();
 
         expect(str).to.equal(JSON.stringify(fixture, null, 2));
       });
@@ -30,23 +30,23 @@ describe('StreamReader', () => {
       stream.Readable.call(this);
     }
 
-    MockStream.prototype.pipe = (writable) => {
+    MockStream.prototype.pipe = writable => {
       this.writable = writable;
     };
 
     util.inherits(MockStream, stream.Readable);
-    let mock = new MockStream();
-    let reader = new StreamReader(mock);
-    let err = new Error('Bogus error');
+    const mock = new MockStream();
+    const reader = new StreamReader(mock);
+    const err = new Error('Bogus error');
     process.nextTick(() => {
       reader.emit('error', err);
     });
 
     return reader.readAll()
-      .then((output) => {
+      .then(output => {
         expect(output).to.match('you should not be here');
       })
-      .catch((error) => {
+      .catch(error => {
         expect(error).to.exist;
       });
   });

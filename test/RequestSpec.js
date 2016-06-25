@@ -1,5 +1,5 @@
-// jshint -W034
 // Node needs the declaration to permit usage of 'let' */
+// eslint-disable-next-line strict
 'use strict';
 
 const expect = require('chai').expect;
@@ -120,7 +120,7 @@ describe('Request - test against httpbin.org', () => {
     request = new Request('POST', url, { json: true, body: body });
 
     return request.run()
-      .then((response) => {
+      .then(response => {
         expect(JSON.parse(response.data).foo).to.equal('bar');
       });
   });
@@ -131,7 +131,7 @@ describe('Request - test against httpbin.org', () => {
     request = new Request('PUT', url, { json: true, body: body });
 
     return request.run()
-      .then((response) => {
+      .then(response => {
         expect(JSON.parse(response.data).foo).to.equal('bar');
       });
   });
@@ -154,7 +154,7 @@ describe('Request - test against httpbin.org', () => {
 
   it('Supports HTTP Basic Auth', () => {
     auth = { user: 'user', password: 'password' };
-    url = 'https://httpbin.org/basic-auth/user/password',
+    url = 'https://httpbin.org/basic-auth/user/password';
     request = new Request('GET', url, { json: true, auth: auth });
 
     return request.run()
@@ -172,7 +172,7 @@ describe('Request - test against httpbin.org', () => {
     request = new Request('GET', url);
 
     return request.run()
-      .then((response) => {
+      .then(response => {
         expect(response).to.exist;
       });
   });
@@ -183,7 +183,7 @@ describe('Request - test against httpbin.org', () => {
     request = new Request('POST', url, { json: true, body: body });
 
     return request.run()
-      .then((response) => {
+      .then(response => {
         expect(JSON.parse(response.data).foo).to.equal('bar');
       });
   });
@@ -194,7 +194,7 @@ describe('Request - test against httpbin.org', () => {
     request = new Request('POST', url, { form: body });
 
     return request.run()
-      .then((response) => {
+      .then(response => {
         expect(JSON.parse(response.toString()).form.foo).to.equal('bar');
       });
   });
@@ -205,7 +205,7 @@ describe('Request - test against httpbin.org', () => {
       { json: true, resolveWithFullResponse: true });
 
     return request.run()
-      .then((response) => {
+      .then(response => {
         expect(response.statusCode).to.equal(200);
         expect(response.body).to.exist;
       });
