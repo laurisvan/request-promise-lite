@@ -1,9 +1,15 @@
-const gulp = require('gulp');
 const babel = require('gulp-babel');
-const sourcemaps = require('gulp-sourcemaps');
+const bump = require('gulp-bump');
 const eslint = require('gulp-eslint');
-const gMocha = require('gulp-mocha');
-const gSequence = require('gulp-sequence');
+const gulp = require('gulp');
+const minimist = require('minimist');
+const mocha = require('gulp-mocha');
+const sequence = require('gulp-sequence');
+const sourcemaps = require('gulp-sourcemaps');
+
+const defaults = { type: 'patch' };
+const options = minimist(process.argv.slice(2), defaults);
+
 
 gulp.task('eslint', () => {
   return gulp.src(['src/**/*.js', 'test/**/*.js', 'gulpfile.js'])
@@ -14,7 +20,13 @@ gulp.task('eslint', () => {
 
 gulp.task('mocha', () => {
   return gulp.src('test/test.js', { read: false, timeout: 5000 })
-    .pipe(gMocha());
+    .pipe(mocha());
+});
+
+gulp.task('bump', () => {
+  gulp.src('./package.json')
+  .pipe(bump({ type: options.type }))
+  .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', () => {
@@ -49,5 +61,5 @@ gulp.task('default', () => {
 
 // Aliases
 gulp.task('validate', ['eslint']);
-gulp.task('test', gSequence('validate', 'mocha'));
+gulp.task('test', sequence('validate', 'mocha'));
 gulp.task('build', ['default']);
