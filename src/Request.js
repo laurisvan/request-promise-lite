@@ -38,7 +38,7 @@ export default class Request {
       const unparsedValues = map[key];
       let values;
 
-      if (!unparsedValues) {
+      if (typeof unparsedValues === 'undefined') {
         // TODO Check this - can we send keys that have values? request module thinks 'no'
         //return key;
         return '';

@@ -53,6 +53,23 @@ describe('Request - test against httpbin.org', () => {
       });
   });
 
+  it('Supports booleans, strings, and numbers in query object', () => {
+    url = 'https://httpbin.org/get';
+    const qs = {
+      text: 'test text',
+      number: -1,
+      boolean: false,
+    };
+    request = new Request('GET', url, { json: true, qs: qs });
+
+    return request.run()
+      .then(response => {
+        expect(response.args.text).to.equal('test text');
+        expect(response.args.number).to.equal('-1');
+        expect(response.args.boolean).to.equal('false');
+      });
+  });
+
   it('Accepts custom headers', () => {
     url = 'https://httpbin.org/headers';
     headers = {
