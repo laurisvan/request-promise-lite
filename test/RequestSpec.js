@@ -229,4 +229,28 @@ describe('Request - test against httpbin.org', () => {
   });
 
   xit('Supports \'multipart\' bodies', () => null);
+
+  it('Supports \'verbose\' in options', () => {
+    url = 'http://httpbin.org/post';
+    body = { foo: 'bar' };
+    request = new Request('POST', url, { json: true, body: body, verbose: true });
+
+    // Mock console.info && save all values to array
+    // TODO This is less than elegant, but works
+    const oldInfo = console.info;
+    const buffer = [];
+    console.info = (key, value) => {
+      buffer.push(key, value);
+    };
+
+    return request.run()
+      .catch(error => {
+        console.info = oldInfo;
+        throw error;
+      })
+      .then(response => {
+        console.info = oldInfo;
+        expect(buffer).to.not.be.empty;
+      });
+  });
 });

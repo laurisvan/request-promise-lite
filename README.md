@@ -11,9 +11,9 @@ This is a lightweight HTTP Promise client, somewhat compatible with
 ## Usage
 
 Request in request-promise style:
-	
+
     var request = require('request-promise-lite)'
-    
+
     request.get('https://httpbin.org/get', { json: true })
       .then((response) => {
         console.log(JSON.stringify(response));
@@ -23,7 +23,7 @@ Use bundled classes (Request):
 
     var url = 'https://httpbin.org/get';
     var req = new request.Request('GET', url, { json: true });
-    
+
     req.run()
       .then((response) => {
         console.log(JSON.stringify(response));
@@ -34,7 +34,7 @@ Use bundled classes (StreamReader):
     var filePath = path.resolve(__dirname, './fixtures/sample.json');
     var stream = fs.createReadStream(filePath);
     var reader = new request.StreamReader(stream);
-    
+
     reader.readAll()
       .then((output) => {
         console.log(output.toString());
@@ -56,6 +56,7 @@ are passed forward as-is. In addition the following shorthand options are suppor
       json: false,      // JSON shortcut for req headers & response parsing
       agent: false,     // The HTTP agent for subsequent calls
       resolveWithFullResponse: false, // Resolve with the response, not the body
+      verbose: false,   // Whether or not run the requests in verbose mode
     };
 
 ## Features
@@ -108,6 +109,5 @@ The code has been writen in es2015 and transpiled in [Babel](https://babeljs.io/
 
     > gulp build             # If you have gulp in your path
     > npm run-script build   # Use gulp devDependency
-    > gulp watch             # Trigger rebuild & test on file changes   
+    > gulp watch             # Trigger rebuild & test on file changes
     > gulp test              # Run mocha tests & several validators
-    

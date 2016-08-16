@@ -77,6 +77,7 @@ export default class Request {
       json: false,      // JSON shortcut for req headers & response parsing
       agent: false,     // The HTTP agent for subsequent calls
       resolveWithFullResponse: false, // Resolve with the response, not the body
+      verbose: false,   // Whether or not run the requests in verbose mode
     };
 
     this.options = Object.assign({}, defaults, options);
@@ -171,6 +172,11 @@ export default class Request {
     const reader = new StreamReader(res);
     const _this = this;
 
+    if (this.options.verbose) {
+      console.info('Response status:', res.statusCode);
+      console.info('Response headers:', JSON.stringify(res.headers));
+    }
+
     // Handle redirects
     if (status >= 301 && status <= 303) {
       const location = res.headers.location;
@@ -199,6 +205,18 @@ export default class Request {
     // Handle success cases
     if (status >= 200 && status < 300) {
       return reader.readAll(res)
+        .then(body => {
+          if (this.options.verbose) {
+            let decodedBody = body;
+            if (typeof body === 'object' && typeof body.toString === 'function') {
+              decodedBody = body.toString();
+            }
+
+            console.info('Response body:', decodedBody);
+          }
+
+          return body;
+        })
         .then(body => Promise.resolve(this.createResponse(res, body)));
     }
 
@@ -211,10 +229,22 @@ export default class Request {
       });
   }
 
-  handleRequest(method, url, opts) {
+  handleRequest() {
     const _this = this;
 
     return new Promise((resolve, reject) => {
+
+      if (_this.options.verbose) {
+        let body = _this.body;
+        if (typeof body === 'object' && typeof body.toString === 'function') {
+          body = body.toString();
+        }
+
+        console.info('Request URL:', urlParser.format(_this.url));
+        console.info('Request headers:', _this.transportOptions.headers);
+        console.info('Request body:', body);
+      }
+
       // Choose the transport
       const transport = Request.chooseTransport(_this.url.protocol);
       const transOpts = this.transportOptions;
