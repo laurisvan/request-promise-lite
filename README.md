@@ -55,6 +55,8 @@ are passed forward as-is. In addition the following shorthand options are suppor
       maxRedirects: 3,  // How many redirects to follow
       json: false,      // JSON shortcut for req headers & response parsing
       agent: false,     // The HTTP agent for subsequent calls
+      body: {},         // Payload in body
+      qs: {},           // Will be parsed into a query string e.g. {key: value} => /?key=value
       resolveWithFullResponse: false, // Resolve with the response, not the body
       verbose: false,   // Whether or not run the requests in verbose mode
     };
