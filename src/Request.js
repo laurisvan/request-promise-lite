@@ -152,10 +152,14 @@ export default class Request {
     // Handle the few known special cases
     if (this.options.json) {
       const str = body.toString();
-      if (str.length !== 0) {
+      if (str.length === 0) {
+        return null;
+      }
+
+      try {
         body = JSON.parse(str);
-      } else {
-        body = null;
+      } catch (error) {
+        throw new RequestError(`Invalid JSON: '${body}'`, 0, response);
       }
     }
 
@@ -164,6 +168,7 @@ export default class Request {
       return response;
     }
 
+    // Return the body as-is
     return body;
   }
 
@@ -202,27 +207,24 @@ export default class Request {
         .then(request.handleResponse.bind(request));
     }
 
-    // Handle success cases
-    if (status >= 200 && status < 300) {
-      return reader.readAll(res)
-        .then(body => {
-          if (this.options.verbose) {
-            let decodedBody = body;
-            if (typeof body === 'object' && typeof body.toString === 'function') {
-              decodedBody = body.toString();
-            }
-
-            console.info('Response body:', decodedBody);
-          }
-
-          return body;
-        })
-        .then(body => Promise.resolve(this.createResponse(res, body)));
-    }
-
-    // All other cases
     return reader.readAll(res)
       .then(body => {
+        if (this.options.verbose) {
+          let decodedBody = body;
+          if (typeof body === 'object' && typeof body.toString === 'function') {
+            decodedBody = body.toString();
+          }
+
+          console.info('Response body:', decodedBody);
+        }
+
+
+        // Handle success cases
+        if (status >= 200 && status < 300) {
+          return Promise.resolve(this.createResponse(res, body));
+        }
+
+        // All other cases
         const response = this.createResponse(res, body);
         const error = new RequestError('Error in response', status, response);
         return Promise.reject(error);
