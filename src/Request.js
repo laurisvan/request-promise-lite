@@ -226,7 +226,7 @@ export default class Request {
 
         // All other cases
         const response = this.createResponse(res, body);
-        const error = new RequestError('Error in response', status, response);
+        const error = new Error('Error in response \n' + JSON.stringify(response, null, 2));
         return Promise.reject(error);
       });
   }
