@@ -49,59 +49,65 @@ Use bundled classes (StreamReader):
 Node.js [http/https request options](https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_http_request_options_callback)
 are passed forward as-is. In addition the following shorthand options are supported:
 
-    // Options & their default values
-    let defaults = {
-      headers: {},      // The headers to pass forward (as-is)
-      maxRedirects: 3,  // How many redirects to follow
-      json: false,      // JSON shortcut for req headers & response parsing
-      agent: false,     // The HTTP agent for subsequent calls
-      resolveWithFullResponse: false, // Resolve with the response, not the body
-      verbose: false,   // Whether or not run the requests in verbose mode
-    };
+```
+// Options & their default values
+const defaults = {
+  headers: {},      // The headers to pass forward (as-is)
+  maxRedirects: 3,  // How many redirects to follow
+  json: false,      // JSON shortcut for req headers & response parsing
+  agent: false,     // The HTTP agent for subsequent calls
+  resolveWithFullResponse: false, // Resolve with the response, not the body
+  verbose: false,   // Whether or not run the requests in verbose mode
+  compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
+};
+```
 
 ## Features
 
 A few tests have been written, with a few options supported. Here's a result of a test run:
 
-  ```
+```
   RequestError
     ✓ Supports message, status code and response
     ✓ Stringifies to a meaningful message
 
   Request - test against httpbin.org
-    ✓ Supports HTTP (293ms)
-    ✓ Supports HTTPS (559ms)
+    ✓ Supports HTTP (290ms)
+    ✓ Supports HTTPS (556ms)
     - Supports HTTP as the default protocol (if none given)
-    ✓ Supports query string parameters in URL (409ms)
-    ✓ Accepts custom headers (405ms)
+    ✓ Supports query string parameters in URL (393ms)
+    ✓ Supports booleans, strings, and numbers in query object (400ms)
+    ✓ Accepts custom headers (399ms)
     - Interprets empty response with JSON request as null
-    ✓ Supports 301-303 redirects (756ms)
-    ✓ Rejects on 4xx errors (269ms)
-    ✓ Limits the maximum number of 301-303 redirects (406ms)
-    ✓ Performs POST requests (269ms)
-    ✓ Performs PUT requests (261ms)
-    ✓ Performs DELETE requests (259ms)
+    ✓ Supports 301-303 redirects (775ms)
+    ✓ Rejects on 4xx errors (257ms)
+    ✓ Limits the maximum number of 301-303 redirects (388ms)
+    ✓ Performs POST requests (260ms)
+    ✓ Performs PUT requests (276ms)
+    ✓ Performs DELETE requests (269ms)
     ✓ Supports TLS with passphrase
-    ✓ Supports HTTP Basic Auth (417ms)
-    ✓ Supports null options (384ms)
-    ✓ Supports 'json' in options (276ms)
-    ✓ Supports 'form' in options (x-www-form-urlencoded) (275ms)
-    ✓ Supports 'resolveWithFullResponse' in options (260ms)
+    ✓ Supports HTTP Basic Auth (387ms)
+    ✓ Supports GZIP compression (388ms)
+    ✓ Supports null options (399ms)
+    ✓ Supports 'json' in options (268ms)
+    ✓ Supports 'form' in options (x-www-form-urlencoded) (255ms)
+    ✓ Supports 'resolveWithFullResponse' in options (262ms)
     - Supports 'multipart' bodies
+    ✓ Supports 'verbose' in options (297ms)
 
   StreamReader
     ✓ Reads a stream fully
     - Fails gracefully on invalid stream
 
   index.js wrapper
-    ✓ Nested methods - request.get (262ms)
-    ✓ Nested classes - request.Request (408ms)
+    ✓ Nested methods - request.get (256ms)
+    ✓ Nested classes - request.Request (379ms)
     ✓ Nested classes - request.StreamReader
 
 
-  22 passing (6s)
+  25 passing (7s)
   4 pending
-  ```
+```
 
 ## Building
 

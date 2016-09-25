@@ -184,6 +184,16 @@ describe('Request - test against httpbin.org', () => {
       });
   });
 
+  it('Supports GZIP compression', () => {
+    url = 'https://httpbin.org/gzip';
+    request = new Request('GET', url, { json: true, compression: ['gzip'] });
+
+    return request.run()
+      .then(response => {
+        expect(response.gzipped).to.equal(true);
+      });
+  });
+
   it('Supports null options', () => {
     url = 'https://httpbin.org/get';
     request = new Request('GET', url);

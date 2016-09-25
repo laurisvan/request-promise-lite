@@ -1,6 +1,7 @@
 import http from 'http';
 import https from 'https';
 import urlParser from 'url';
+import zlib from 'zlib';
 import querystring from 'querystring';
 import StreamReader from './StreamReader';
 import RequestError from './RequestError';
@@ -78,6 +79,7 @@ export default class Request {
       agent: false,     // The HTTP agent for subsequent calls
       resolveWithFullResponse: false, // Resolve with the response, not the body
       verbose: false,   // Whether or not run the requests in verbose mode
+      compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
     };
 
     this.options = Object.assign({}, defaults, options);
@@ -138,6 +140,18 @@ export default class Request {
       transOpts.auth = user + ':' + password;
     }
 
+    if (options.compression) {
+      const comp = options.compression;
+      const supported = ['gzip', 'deflate'];
+
+      if (!Array.isArray(comp) || comp.some(v1 => !supported.some(v2 => v1 === v2))) {
+        const message = `Invalid compression scheme, '${comp}', expecting string array`;
+        throw new Error(message);
+      }
+
+      transOpts.headers['Accept-Encoding'] = options.compression.join(', ');
+    }
+
     // Update instance attributes
     this.transportOptions = transOpts;
     this.body = body;
@@ -174,7 +188,6 @@ export default class Request {
 
   handleResponse(res) {
     const status = res.statusCode;
-    const reader = new StreamReader(res);
     const _this = this;
 
     if (this.options.verbose) {
@@ -207,7 +220,25 @@ export default class Request {
         .then(request.handleResponse.bind(request));
     }
 
-    return reader.readAll(res)
+    // By default, read the response as-is; if compression is given, uncompress.
+    const encoding = res.headers['content-encoding'] || '';
+    let readStream;
+    switch (encoding) {
+      case '':
+        readStream = res;
+        break;
+      case 'gzip':
+        readStream = res.pipe(zlib.createGunzip());
+        break;
+      case 'deflate':
+        readStream = res.pipe(zlib.createInflate());
+        break;
+      default:
+        throw new RequestError(`Invalid response encoding: '${encoding}'`, 0, res);
+    }
+
+    const reader = new StreamReader(readStream);
+    return reader.readAll()
       .then(body => {
         if (this.options.verbose) {
           let decodedBody = body;
@@ -217,7 +248,6 @@ export default class Request {
 
           console.info('Response body:', decodedBody);
         }
-
 
         // Handle success cases
         if (status >= 200 && status < 300) {
