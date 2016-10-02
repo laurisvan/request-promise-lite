@@ -4,7 +4,9 @@ import urlParser from 'url';
 import zlib from 'zlib';
 import querystring from 'querystring';
 import StreamReader from './StreamReader';
-import RequestError from './RequestError';
+import ConnectionError from './ConnectionError';
+import HTTPError from './HTTPError';
+import ParseError from './ParseError';
 
 /**
  * @typedef {Object} Request
@@ -15,20 +17,35 @@ import RequestError from './RequestError';
  */
 export default class Request {
 
-  static chooseTransport(protocol) {
+  /**
+   * Chooses the given transport type (HTTP or HTTPS) and returns the
+   * corresponding handler.
+   *
+   * @param {string} protocol - the name of the protocol (http or https)
+   * @return {function} that handles the request (http or https)
+   * @throws {TypeError{ in case anything else than http or https is specified
+   */
+  static parseTransport(protocol) {
     switch (protocol) {
       case 'http:':
         return http;
       case 'https:':
         return https;
       default:
-        throw new Error('New Error: Invalid protocol ' + protocol);
+        throw new TypeError(`New Error: Invalid protocol ${protocol}`);
     }
   }
 
-  static encodeQuery(map, useQueryString) {
-    if (!map) {
-      return null;
+  /**
+   * Encodes a object key-values pair into an URL query string
+   *
+   * @param {options} map - The key-value pairs to parse the options from
+   * @param {boolean} useQueryString - true if node.js native lib is to be used
+   * @throws {TypeError} in case of invalid options
+   */
+  static parseQuery(map, useQueryString) {
+    if (typeof map !== 'object') {
+      throw new TypeError('Invalid query string map');
     }
 
     if (useQueryString) {
@@ -56,17 +73,57 @@ export default class Request {
     return tokens.join('&');
   }
 
+  /**
+   * Parse an URL object from string and query string nested within options.
+   *
+   * @param {string} url - The URL to connect to
+   * @param {object} options - The supplementary options to pick query string from
+   * @throws {TypeError} in case of invalid url or options.
+   */
   static parseUrl(url, options) {
     url = url || options.url;
 
     // Parse the URI & headers. Re-parsing is needed to get the formatting changes
-    let parsed = urlParser.parse(url);
-    parsed.search = Request.encodeQuery(options.qs, options.useQuerystring) || parsed.search;
-    parsed = urlParser.parse(urlParser.format(parsed));
+    const parsed = urlParser.parse(url);
+    if (options.qs) {
+      parsed.search = Request.parseQuery(options.qs, options.useQuerystring);
+    }
 
-    return parsed;
+    // Make sure the URL is a valid one. Use the version by @stephenhay that
+    // is short and no false positives, but some false negatives (which is ok).
+    // See: https://mathiasbynens.be/demo/url-regex
+    const formatted = urlParser.format(parsed);
+    const regex = /^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$/i;
+    if (!regex.test(formatted)) {
+      throw new TypeError(`Invalid URL: ${formatted}`);
+    }
+
+    return urlParser.parse(formatted);
   }
 
+  /**
+   * Parses the HTTP method (GET, POST, PUT or DELETE)
+   *
+   * @param {string} method - the HTTP method to use (GET, POST, PUT or DELETE)
+   * @return {string} the parsed method as-is, if succesful
+   * @throws {TypeError} in case of invalid method
+   */
+  static parseMethod(method) {
+    if (['GET', 'POST', 'PUT', 'DELETE'].indexOf(method) !== -1) {
+      return method;
+    }
+
+    throw new TypeError(`Invalid method '${method}'`);
+  }
+
+  /**
+   * (Private) constructor that initialises a new request, do not call directly.
+   *
+   * @param {string} method - the HTTP method to invoke (GET, POST, PUT, DELETE)
+   * @param {string} url - The URL to connect to
+   * @param {object} options - The supplementary options for the HTTP request
+   * @throws {TypeError} in case of invalid method, url or options.
+   */
   constructor(method, url, options) {
     // Defaults
     options = options || {};
@@ -82,14 +139,21 @@ export default class Request {
       compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
     };
 
-    this.options = Object.assign({}, defaults, options);
-    this.method = method;
+    this.method = Request.parseMethod(method);
     this.url = Request.parseUrl(url, options);
+    this.transport = Request.parseTransport(this.url.protocol);
 
-    // Parse the input options (affects the instance attributes)
+    // Parse the input options (using also this.method, url and transport)
+    // Updates this.transportOptions and this.body
+    this.options = Object.assign({}, defaults, options);
     this.parseOptions();
   }
 
+  /**
+   * Parses the request options from this.url, this.method & this.options
+   *
+   * @throws {TypeError} in case of invalid options.
+   */
   parseOptions() {
     const method = this.method;
     const url = this.url;
@@ -121,7 +185,7 @@ export default class Request {
 
     if (options.form) {
       if (typeof options.form !== 'object') {
-        throw new Error('Incompatible form data: ', options.form);
+        throw new TypeError('Incompatible form data: ', options.form);
       }
 
       body = querystring.stringify(options.form);
@@ -131,7 +195,7 @@ export default class Request {
 
     if (options.auth) {
       if (typeof options.auth !== 'object') {
-        throw new Error('Incompatible auth data', options.auth);
+        throw new TypeError('Incompatible auth data', options.auth);
       }
 
       const user = options.auth.user || options.auth.username;
@@ -146,7 +210,7 @@ export default class Request {
 
       if (!Array.isArray(comp) || comp.some(v1 => !supported.some(v2 => v1 === v2))) {
         const message = `Invalid compression scheme, '${comp}', expecting string array`;
-        throw new Error(message);
+        throw new TypeError(message);
       }
 
       transOpts.headers['Accept-Encoding'] = options.compression.join(', ');
@@ -157,11 +221,21 @@ export default class Request {
     this.body = body;
   }
 
+  /**
+   * Dispatches the request.
+   */
   run() {
     return this.handleRequest()
-      .then(this.handleResponse.bind(this));
+      .then(response => this.handleResponse(response));
   }
 
+  /**
+   * Parses the response body and wraps it into a response
+   *
+   * @param {object} response - the raw node.js HTTP response
+   * @param {object} body - the raw node.js HTTP response body
+   * @throws {ParseError} in case parsing to the requested type fails
+   */
   createResponse(response, body) {
     // Handle the few known special cases
     if (this.options.json) {
@@ -173,7 +247,7 @@ export default class Request {
       try {
         body = JSON.parse(str);
       } catch (error) {
-        throw new RequestError(`Invalid JSON: '${body}'`, 0, response);
+        throw new ParseError(`Invalid JSON: '${body}'`, error.message);
       }
     }
 
@@ -186,6 +260,14 @@ export default class Request {
     return body;
   }
 
+  /**
+   * Processes the HTTP response before parsing it.
+   * Handles redirects, decompresses and reads the streams.
+   *
+   * @param {object} response - the raw node.js HTTP response
+   * @param {object} body - the raw node.js HTTP response body
+   * @throws {ParseError} in case parsing to the requested type fails
+   */
   handleResponse(res) {
     const status = res.statusCode;
     const _this = this;
@@ -202,22 +284,22 @@ export default class Request {
 
       // If we're out of the redirect quota, reject
       if (options.maxRedirects < 1) {
-        return Promise.reject(new Error('Too many redirects to handle ' + status));
+        const message = `Too many redirects to handle ${status}`;
+        return Promise.reject(new ConnectionError(message));
       }
 
       // Recurse with a new request. Don't use the options
-      // query string, as it is already encoded in the new location
+      // query string, as it is already encoded in the new location string
       const newOpts = Object.assign({}, options);
-
-      if (newOpts.qs) {
+      if (typeof newOpts.qs !== 'undefined') {
         delete newOpts.qs;
       }
-
       newOpts.maxRedirects = options.maxRedirects - 1;
 
+      // Create and dispatch the new request
       const request = new Request(_this.method, location, newOpts);
       return request.handleRequest()
-        .then(request.handleResponse.bind(request));
+        .then(response => request.handleResponse(response));
     }
 
     // By default, read the response as-is; if compression is given, uncompress.
@@ -234,38 +316,50 @@ export default class Request {
         readStream = res.pipe(zlib.createInflate());
         break;
       default:
-        throw new RequestError(`Invalid response encoding: '${encoding}'`, 0, res);
+        return Promise.reject(new ParseError(`Invalid response encoding: '${encoding}'`));
     }
 
     const reader = new StreamReader(readStream);
     return reader.readAll()
-      .then(body => {
-        if (this.options.verbose) {
-          let decodedBody = body;
-          if (typeof body === 'object' && typeof body.toString === 'function') {
-            decodedBody = body.toString();
+      .then(
+          body => {
+            if (this.options.verbose) {
+              let decodedBody = body;
+              if (body && typeof body.toString === 'function') {
+                decodedBody = body.toString();
+              }
+
+              console.info('Response body:', decodedBody);
+            }
+
+            // Handle success cases
+            if (status >= 200 && status < 300) {
+              return Promise.resolve(this.createResponse(res, body));
+            }
+
+            // All other cases
+            const response = this.createResponse(res, body);
+            const error = new HTTPError('Error in response', status, response);
+            return Promise.reject(error);
+          },
+          error => {
+            // Throw errors received from stream reading as connection errors
+            const message = `Error reading the response: ${error.message}`;
+            return Promise.reject(new ConnectionError(message, error.message));
           }
-
-          console.info('Response body:', decodedBody);
-        }
-
-        // Handle success cases
-        if (status >= 200 && status < 300) {
-          return Promise.resolve(this.createResponse(res, body));
-        }
-
-        // All other cases
-        const response = this.createResponse(res, body);
-        const error = new RequestError('Error in response', status, response);
-        return Promise.reject(error);
-      });
+        );
   }
 
+  /**
+   * Handles the request.
+   * Chooses a transport, creates the connection and sends the request data.
+   *
+   * @throws ConnectionError in case connection fails.
+   */
   handleRequest() {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-
       if (_this.options.verbose) {
         let body = _this.body;
         if (typeof body === 'object' && typeof body.toString === 'function') {
@@ -278,18 +372,29 @@ export default class Request {
       }
 
       // Choose the transport
-      const transport = Request.chooseTransport(_this.url.protocol);
-      const transOpts = this.transportOptions;
+      const transport = _this.transport;
+      const transOpts = _this.transportOptions;
 
       // Process the request
-      const req = transport.request(transOpts, res => resolve(res));
-
-      // If we have a body, it should be written
-      if (this.body) {
-        req.write(this.body);
-      }
-
-      req.end();
+      const req = transport.request(transOpts);
+      req.on('abort', () => {
+        const rawMessage = 'Client aborted the request';
+        const message = `Connection failed: ${rawMessage}`;
+        reject(new ConnectionError(message, rawMessage));
+      });
+      req.on('aborted', () => {
+        const rawMessage = 'Server aborted the request';
+        const message = `Connection failed: ${rawMessage}`;
+        reject(new ConnectionError(message, rawMessage));
+      });
+      req.on('error', error => {
+        const message = `Connection failed: ${error.message}`;
+        reject(new ConnectionError(message, error.message));
+      });
+      req.on('response', response => {
+        resolve(response);
+      });
+      req.end(this.body);
     });
   }
 }

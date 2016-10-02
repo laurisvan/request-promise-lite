@@ -3,7 +3,13 @@
 'use strict';
 
 const expect = require('chai').expect;
+const proxyquire =  require('proxyquire');
+const EventEmitter = require('events').EventEmitter;
+const Stream = require('stream');
 const Request = require('../lib/Request');
+const HTTPError = require('../lib/HTTPError');
+const ConnectionError = require('../lib/ConnectionError');
+const ParseError = require('../lib/ParseError');
 
 describe('Request - test against httpbin.org', () => {
 
@@ -262,5 +268,154 @@ describe('Request - test against httpbin.org', () => {
         console.info = oldInfo;
         expect(buffer).to.not.be.empty;
       });
+  });
+});
+
+describe('Error handling', () => {
+  let request;
+  let url;
+  let body;
+  let ProxiedRequest;
+
+  function createConnectionErrorStub(event, data) {
+    const stub = {
+      request: function () {
+        const fakeClientRequest = new EventEmitter();
+        fakeClientRequest.end = function () {
+          this.emit(event, data);
+        };
+        return fakeClientRequest;
+      },
+    };
+    return proxyquire('../lib/Request', {
+      http: stub,
+    });
+  }
+
+  function createHTTPErrorStub(event, data) {
+    const stub = {
+      request: function () {
+        const fakeClientRequest = new EventEmitter();
+        fakeClientRequest.end = function () {
+          const buffer = new Buffer('{ "stub": "output" }');
+          const bufferStream = new Stream.PassThrough();
+          bufferStream.end(buffer);
+
+          this.emit('response', Object.assign(bufferStream, data));
+        };
+        return fakeClientRequest;
+      },
+    };
+    return proxyquire('../lib/Request', {
+      http: stub,
+    });
+  }
+
+  it('Throws TypeError when constructing with an invalid method', () => {
+    url = 'http://httpbin.org/get';
+    expect(() => new Request('FOO', url, { json: true })).to.throw(TypeError);
+  });
+
+  it('Throws TypeError when constructing with an invalid query string', () => {
+    url = 'http://httpbin.org/get';
+    expect(() => new Request('GET', url, { qs: 'invalid', json: true })).to.throw(TypeError);
+  });
+
+  it('Throws TypeError when constructing with an invalid protocol', () => {
+    url = 'foo://httpbin.org/get';
+    expect(() => new Request('GET', url, { json: true })).to.throw(TypeError);
+  });
+
+  it('Throws TypeError when constructing with an invalid path', () => {
+    // See https://mathiasbynens.be/demo/url-regex
+    url = 'http://##/';
+    expect(() => new Request('GET', url, { json: true })).to.throw(TypeError);
+  });
+
+  it('Throws connections to non-existing hosts as ConnectionError', () => {
+    url = 'http://foo.not.com/';
+    request = new Request('POST', url, { json: true, body: body });
+
+    return request.run()
+      .then(
+        response => (expect('should not succeed').to.equal(true)),
+        error => (expect(error).to.be.instanceof(ConnectionError))
+      );
+  });
+
+  it('Throws ConnectionError when client aborted', () => {
+    url = 'http://httpbin.org/get';
+    ProxiedRequest = createConnectionErrorStub('abort', new Error('Connection aborted'));
+    request = new ProxiedRequest('GET', url, { json: true });
+
+    return request.run()
+      .then(
+        response => (expect('should not succeed').to.equal(true)),
+        error => {
+          expect(error).to.be.instanceof(ConnectionError);
+          expect(error.message).to.equal('Connection failed: Client aborted the request');
+        }
+      );
+  });
+
+  it('Throws ConnectionError when server aborted', () => {
+    url = 'http://httpbin.org/get';
+    ProxiedRequest = createConnectionErrorStub('aborted', new Error('Connection aborted'));
+    request = new ProxiedRequest('GET', url, { json: true });
+
+    return request.run()
+      .then(
+        response => (expect('should not succeed').to.equal(true)),
+        error => {
+          expect(error).to.be.instanceof(ConnectionError);
+          expect(error.message).to.equal('Connection failed: Server aborted the request');
+        }
+      );
+  });
+
+  it('Throws ConnectionError on other errors', () => {
+    url = 'http://httpbin.org/get';
+    ProxiedRequest = createConnectionErrorStub('error', new Error('Some other error'));
+    request = new ProxiedRequest('GET', url, { json: true });
+
+    return request.run()
+      .then(
+        response => (expect('should not succeed').to.equal(true)),
+        error => {
+          expect(error).to.be.instanceof(ConnectionError);
+          expect(error.message).to.equal('Connection failed: Some other error');
+        }
+      );
+  });
+
+  it('Throws HTTP on HTTP Error code responses 4xx-5xx', () => {
+    url = 'http://httpbin.org/get';
+    ProxiedRequest = createHTTPErrorStub('request', {
+      headers: {},
+      statusCode: 500,
+    });
+    request = new ProxiedRequest('GET', url, { json: true });
+
+    return request.run()
+      .then(
+        response => (expect('should not succeed').to.equal(true)),
+        error => {
+          expect(error).to.be.instanceof(HTTPError);
+          expect(error.toString()).to.equal('500: Error in response');
+        }
+      );
+  });
+
+  it('Throws ParseError when requesting JSON, but getting sth else', () => {
+    url = 'http://httpbin.org/bytes/1024';
+    request = new Request('GET', url, { json: true });
+
+    return request.run()
+      .then(
+        response => (expect('should not succeed').to.equal(true)),
+        error => {
+          expect(error).to.be.instanceof(ParseError);
+        }
+      );
   });
 });

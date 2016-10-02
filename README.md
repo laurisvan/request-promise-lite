@@ -40,9 +40,11 @@ Use bundled classes (StreamReader):
         console.log(output.toString());
       }
 
-Use bundled classes (StreamReader):
+Use bundled classes (superclass RequestError, or specifics ConnectionError,
+HTTPError, ParseError):
 
-    var error = new request.RequestError('I'm a teapot!', 417, 'teapot');
+    var error = new request.HTTPError('I'm a teapot!', 417, 'teapot');
+    throw new request.ParseError(`Invalid JSON: '${body}'`, error.message);
 
 ### Supported options
 
@@ -67,46 +69,67 @@ const defaults = {
 A few tests have been written, with a few options supported. Here's a result of a test run:
 
 ```
-  RequestError
-    ✓ Supports message, status code and response
-    ✓ Stringifies to a meaningful message
+ParseError
+  ✓ Supports message, status code and response
+  ✓ is an an instance of RequestError
 
-  Request - test against httpbin.org
-    ✓ Supports HTTP (290ms)
-    ✓ Supports HTTPS (556ms)
-    - Supports HTTP as the default protocol (if none given)
-    ✓ Supports query string parameters in URL (393ms)
-    ✓ Supports booleans, strings, and numbers in query object (400ms)
-    ✓ Accepts custom headers (399ms)
-    - Interprets empty response with JSON request as null
-    ✓ Supports 301-303 redirects (775ms)
-    ✓ Rejects on 4xx errors (257ms)
-    ✓ Limits the maximum number of 301-303 redirects (388ms)
-    ✓ Performs POST requests (260ms)
-    ✓ Performs PUT requests (276ms)
-    ✓ Performs DELETE requests (269ms)
-    ✓ Supports TLS with passphrase
-    ✓ Supports HTTP Basic Auth (387ms)
-    ✓ Supports GZIP compression (388ms)
-    ✓ Supports null options (399ms)
-    ✓ Supports 'json' in options (268ms)
-    ✓ Supports 'form' in options (x-www-form-urlencoded) (255ms)
-    ✓ Supports 'resolveWithFullResponse' in options (262ms)
-    - Supports 'multipart' bodies
-    ✓ Supports 'verbose' in options (297ms)
+HTTPError
+  ✓ Supports message, status code and response
+  ✓ Stringifies to a meaningful message
+  ✓ is an an instance of RequestError
 
-  StreamReader
-    ✓ Reads a stream fully
-    - Fails gracefully on invalid stream
+ConnectionError
+  ✓ Supports message and raw message
+  ✓ Stringifies to a meaningful message
+  ✓ is an an instance of RequestError
 
-  index.js wrapper
-    ✓ Nested methods - request.get (256ms)
-    ✓ Nested classes - request.Request (379ms)
-    ✓ Nested classes - request.StreamReader
+Request - test against httpbin.org
+  ✓ Supports HTTP (269ms)
+  ✓ Supports HTTPS (635ms)
+  - Supports HTTP as the default protocol (if none given)
+  ✓ Supports query string parameters in URL (390ms)
+  ✓ Supports booleans, strings, and numbers in query object (403ms)
+  ✓ Accepts custom headers (436ms)
+  - Interprets empty response with JSON request as null
+  ✓ Supports 301-303 redirects (784ms)
+  ✓ Rejects on 4xx errors (258ms)
+  ✓ Limits the maximum number of 301-303 redirects (434ms)
+  ✓ Performs POST requests (271ms)
+  ✓ Performs PUT requests (255ms)
+  ✓ Performs DELETE requests (246ms)
+  ✓ Supports TLS with passphrase
+  ✓ Supports HTTP Basic Auth (400ms)
+  ✓ Supports GZIP compression (479ms)
+  ✓ Supports null options (379ms)
+  ✓ Supports 'json' in options (265ms)
+  ✓ Supports 'form' in options (x-www-form-urlencoded) (263ms)
+  ✓ Supports 'resolveWithFullResponse' in options (254ms)
+  - Supports 'multipart' bodies
+  ✓ Supports 'verbose' in options (258ms)
+
+Error handling
+  ✓ Throws TypeError when constructing with an invalid method
+  ✓ Throws TypeError when constructing with an invalid query string
+  ✓ Throws TypeError when constructing with an invalid protocol
+  ✓ Throws TypeError when constructing with an invalid path
+  ✓ Throws connections to non-existing hosts as ConnectionError
+  ✓ Throws ConnectionError when client aborted
+  ✓ Throws ConnectionError when server aborted
+  ✓ Throws ConnectionError on other errors
+  ✓ Throws ParseError when requesting JSON, but getting sth else (289ms)
+
+StreamReader
+  ✓ Reads a stream fully
+  - Fails gracefully on invalid stream
+
+index.js wrapper
+  ✓ Nested methods - request.get (253ms)
+  ✓ Nested classes - request.Request (385ms)
+  ✓ Nested classes - request.StreamReader
 
 
-  25 passing (7s)
-  4 pending
+40 passing (8s)
+4 pending
 ```
 
 ## Building
