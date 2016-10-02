@@ -1,9 +1,7 @@
-// Node needs the declaration to permit usage of 'let' */
-// eslint-disable-next-line strict
 'use strict';
 
 const expect = require('chai').expect;
-const proxyquire =  require('proxyquire');
+const proxyquire = require('proxyquire');
 const EventEmitter = require('events').EventEmitter;
 const Stream = require('stream');
 const Request = require('../lib/Request');
@@ -66,7 +64,7 @@ describe('Request - test against httpbin.org', () => {
       number: -1,
       boolean: false,
     };
-    request = new Request('GET', url, { json: true, qs: qs });
+    request = new Request('GET', url, { json: true, qs });
 
     return request.run()
       .then(response => {
@@ -82,7 +80,7 @@ describe('Request - test against httpbin.org', () => {
       'X-Custom-Header': 'value',
     };
 
-    request = new Request('GET', url, { json: true, headers: headers });
+    request = new Request('GET', url, { json: true, headers });
     return request.run()
       .then(response => {
         expect(response.headers['X-Custom-Header']).to.equal(headers['X-Custom-Header']);
@@ -140,7 +138,7 @@ describe('Request - test against httpbin.org', () => {
   it('Performs POST requests', () => {
     url = 'http://httpbin.org/post';
     body = { foo: 'bar' };
-    request = new Request('POST', url, { json: true, body: body });
+    request = new Request('POST', url, { json: true, body });
 
     return request.run()
       .then(response => {
@@ -151,7 +149,7 @@ describe('Request - test against httpbin.org', () => {
   it('Performs PUT requests', () => {
     url = 'http://httpbin.org/put';
     body = { foo: 'bar' };
-    request = new Request('PUT', url, { json: true, body: body });
+    request = new Request('PUT', url, { json: true, body });
 
     return request.run()
       .then(response => {
@@ -162,7 +160,7 @@ describe('Request - test against httpbin.org', () => {
   it('Performs DELETE requests', () => {
     url = 'http://httpbin.org/delete';
     body = { foo: 'bar' };
-    request = new Request('DELETE', url, { json: true, body: body });
+    request = new Request('DELETE', url, { json: true, body });
 
     return request.run()
       .then(response => {
@@ -178,7 +176,7 @@ describe('Request - test against httpbin.org', () => {
   it('Supports HTTP Basic Auth', () => {
     auth = { user: 'user', password: 'password' };
     url = 'https://httpbin.org/basic-auth/user/password';
-    request = new Request('GET', url, { json: true, auth: auth });
+    request = new Request('GET', url, { json: true, auth });
 
     return request.run()
       .then(response => {
@@ -213,7 +211,7 @@ describe('Request - test against httpbin.org', () => {
   it('Supports \'json\' in options', () => {
     url = 'http://httpbin.org/post';
     body = { foo: 'bar' };
-    request = new Request('POST', url, { json: true, body: body });
+    request = new Request('POST', url, { json: true, body });
 
     return request.run()
       .then(response => {
@@ -249,7 +247,7 @@ describe('Request - test against httpbin.org', () => {
   it('Supports \'verbose\' in options', () => {
     url = 'http://httpbin.org/post';
     body = { foo: 'bar' };
-    request = new Request('POST', url, { json: true, body: body, verbose: true });
+    request = new Request('POST', url, { json: true, body, verbose: true });
 
     // Mock console.info && save all values to array
     // TODO This is less than elegant, but works
@@ -264,7 +262,7 @@ describe('Request - test against httpbin.org', () => {
         console.info = oldInfo;
         throw error;
       })
-      .then(response => {
+      .then(() => {
         console.info = oldInfo;
         expect(buffer).to.not.be.empty;
       });
@@ -279,7 +277,7 @@ describe('Error handling', () => {
 
   function createConnectionErrorStub(event, data) {
     const stub = {
-      request: function () {
+      request() {
         const fakeClientRequest = new EventEmitter();
         fakeClientRequest.end = function () {
           this.emit(event, data);
@@ -294,7 +292,7 @@ describe('Error handling', () => {
 
   function createHTTPErrorStub(event, data) {
     const stub = {
-      request: function () {
+      request() {
         const fakeClientRequest = new EventEmitter();
         fakeClientRequest.end = function () {
           const buffer = new Buffer('{ "stub": "output" }');
@@ -334,11 +332,11 @@ describe('Error handling', () => {
 
   it('Throws connections to non-existing hosts as ConnectionError', () => {
     url = 'http://foo.not.com/';
-    request = new Request('POST', url, { json: true, body: body });
+    request = new Request('POST', url, { json: true, body });
 
     return request.run()
       .then(
-        response => (expect('should not succeed').to.equal(true)),
+        () => (expect('should not succeed').to.equal(true)),
         error => (expect(error).to.be.instanceof(ConnectionError))
       );
   });
@@ -350,7 +348,7 @@ describe('Error handling', () => {
 
     return request.run()
       .then(
-        response => (expect('should not succeed').to.equal(true)),
+        () => (expect('should not succeed').to.equal(true)),
         error => {
           expect(error).to.be.instanceof(ConnectionError);
           expect(error.message).to.equal('Connection failed: Client aborted the request');
@@ -365,7 +363,7 @@ describe('Error handling', () => {
 
     return request.run()
       .then(
-        response => (expect('should not succeed').to.equal(true)),
+        () => (expect('should not succeed').to.equal(true)),
         error => {
           expect(error).to.be.instanceof(ConnectionError);
           expect(error.message).to.equal('Connection failed: Server aborted the request');
@@ -380,7 +378,7 @@ describe('Error handling', () => {
 
     return request.run()
       .then(
-        response => (expect('should not succeed').to.equal(true)),
+        () => (expect('should not succeed').to.equal(true)),
         error => {
           expect(error).to.be.instanceof(ConnectionError);
           expect(error.message).to.equal('Connection failed: Some other error');
@@ -398,7 +396,7 @@ describe('Error handling', () => {
 
     return request.run()
       .then(
-        response => (expect('should not succeed').to.equal(true)),
+        () => (expect('should not succeed').to.equal(true)),
         error => {
           expect(error).to.be.instanceof(HTTPError);
           expect(error.toString()).to.equal('500: Error in response');
@@ -412,7 +410,7 @@ describe('Error handling', () => {
 
     return request.run()
       .then(
-        response => (expect('should not succeed').to.equal(true)),
+        () => (expect('should not succeed').to.equal(true)),
         error => {
           expect(error).to.be.instanceof(ParseError);
         }

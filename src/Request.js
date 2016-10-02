@@ -58,7 +58,7 @@ export default class Request {
 
       if (typeof unparsedValues === 'undefined') {
         // TODO Check this - can we send keys that have values? request module thinks 'no'
-        //return key;
+        // return key;
         return '';
       } else if (Array.isArray(unparsedValues)) {
         values = unparsedValues.map(encodeURIComponent);
@@ -161,7 +161,7 @@ export default class Request {
 
     // Form the transport options from input options
     const transOpts = {
-      method: method,
+      method,
       hostname: url.hostname,
       port: url.port,
       path: url.path,
@@ -201,7 +201,7 @@ export default class Request {
       const user = options.auth.user || options.auth.username;
       const password = options.auth.pass || options.auth.password;
 
-      transOpts.auth = user + ':' + password;
+      transOpts.auth = `${user}:${password}`;
     }
 
     if (options.compression) {

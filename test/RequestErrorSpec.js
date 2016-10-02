@@ -1,5 +1,3 @@
-// Node needs the declaration to permit usage of 'let' */
-// eslint-disable-next-line strict
 'use strict';
 
 const expect = require('chai').expect;
