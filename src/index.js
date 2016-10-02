@@ -1,6 +1,9 @@
 import Request from './Request';
 import StreamReader from './StreamReader';
 import RequestError from './RequestError';
+import ConnectionError from './ConnectionError';
+import HTTPError from './HTTPError';
+import ParseError from './ParseError';
 
 /**
  * Default handler that creates a new client and executes it
@@ -19,4 +22,7 @@ export default {
   Request: Request,
   StreamReader: StreamReader,
   RequestError: RequestError,
+  ConnectionError: ConnectionError,
+  HTTPError: HTTPError,
+  ParseError: ParseError,
 };
