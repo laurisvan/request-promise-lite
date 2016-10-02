@@ -22,8 +22,17 @@ export default class StreamReader extends stream.Writable {
     this.on('error', this.handleError.bind(this));
   }
 
-  write(chunk, callback) {
+  write(chunk, encoding, callback) {
+    // Handle optional parameters
+    if (typeof encoding === 'function') {
+      callback = encoding;
+    }
+
     this.buffers.push(chunk);
+
+    if (callback) {
+      callback();
+    }
   }
 
   end(chunk) {

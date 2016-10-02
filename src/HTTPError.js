@@ -27,6 +27,6 @@ export default class HTTPError extends RequestError {
    * @return {string} String in format <statuscode>: <message>
    */
   toString() {
-    return this.statusCode + ': ' + this.message;
+    return `${this.statusCode}: ${this.message}`;
   }
 }

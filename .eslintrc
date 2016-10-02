@@ -4,42 +4,25 @@
     "sourceType": "module"
   },
   "env": {
-    "node": true,
-    "mocha": true
+    "node": true
   },
   "extends": ["eslint:recommended", "airbnb"],
   "rules": {
     "no-console": 0,
 
     // airbnb reset
-    "prefer-template": 0,
-    "func-names": 0,
+    "import/no-extraneous-dependencies": [
+      "error", {
+        "devDependencies": ["**/*Spec.js", "**/gulpfile.js"]
+      }
+    ],
+    "prefer-template": 1,
     "padded-blocks": 0,
-    "object-shorthand": 0,
-    "no-unused-expressions": 0,
-    "newline-per-chained-call": 0,
     "arrow-body-style": 0,
     "no-param-reassign": 0,
-    "global-require": 0,
-    "array-callback-return": 0,
-    "no-multi-spaces": 0,
-    "spaced-comment": 0,
-    "no-shadow": 0,
     "no-underscore-dangle": 0,
-    "camelcase": 0,
-    "space-in-parens": 0,
-    "no-restricted-syntax": 0,
     "import/no-unresolved": 0, // fails in Travis
-
-    "no-unused-vars": [2, { "vars": "all", "args": "none" }],
-    "max-len": [2, 256],
-    "max-depth": [2, 2],
-    "comma-dangle": [2, "always-multiline"],
-    "strict": [2, "global"],
     "arrow-parens": [2, "as-needed"],
-
-    "prefer-const": 2,
-    "prefer-arrow-callback": 2,
     "arrow-spacing": 2,
     "no-confusing-arrow": 2,
     "consistent-return": 2,

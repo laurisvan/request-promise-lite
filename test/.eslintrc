@@ -1,0 +1,15 @@
+{
+  "parserOptions": {
+    "sourceType": "script"
+  },
+  "env": {
+    "mocha": true
+  },
+  "rules": {
+    "global-require": 0,
+    "strict": [2, "global"],
+    "lines-around-directive": 0,
+    "func-names": 0,
+    "no-unused-expressions": 0
+   }
+}

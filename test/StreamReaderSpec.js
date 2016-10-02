@@ -1,5 +1,3 @@
-// Node needs the declaration to permit usage of 'let' */
-// eslint-disable-next-line strict
 'use strict';
 
 const path = require('path');
@@ -14,8 +12,8 @@ describe('StreamReader', () => {
 
   it('Reads a stream fully', () => {
     const filePath = path.resolve(__dirname, './fixtures/sample.json');
-    const stream = fs.createReadStream(filePath);
-    const reader = new StreamReader(stream);
+    const readStream = fs.createReadStream(filePath);
+    const reader = new StreamReader(readStream);
 
     return reader.readAll()
       .then(output => {
