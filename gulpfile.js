@@ -28,7 +28,13 @@ gulp.task('mocha', () => {
       return gulp.src('test/test.js', { read: false })
         .pipe(mocha())
         .pipe(istanbul.writeReports())
-        .pipe(istanbul.enforceThresholds({ thresholds: { global: 75 } }))
+        .pipe(istanbul.enforceThresholds({
+          thresholds: {
+            statements: 95,
+            branches: 75,
+            lines: 95,
+          },
+        }))
         .on('error', util.log);
     });
 });
