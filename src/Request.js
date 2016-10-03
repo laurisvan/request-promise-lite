@@ -2,7 +2,6 @@ import http from 'http';
 import https from 'https';
 import urlParser from 'url';
 import zlib from 'zlib';
-import querystring from 'querystring';
 import StreamReader from './StreamReader';
 import ConnectionError from './ConnectionError';
 import HTTPError from './HTTPError';
@@ -40,34 +39,31 @@ export default class Request {
    * Encodes a object key-values pair into an URL query string
    *
    * @param {options} map - The key-value pairs to parse the options from
-   * @param {boolean} useQueryString - true if node.js native lib is to be used
    * @throws {TypeError} in case of invalid options
    */
-  static parseQuery(map, useQueryString) {
+  static parseQuery(map) {
     if (typeof map !== 'object') {
       throw new TypeError('Invalid query string map');
     }
 
-    if (useQueryString) {
-      return querystring.stringify(map);
-    }
-
     const tokens = (Object.keys(map)).map(key => {
       const unparsedValues = map[key];
+      const encodedKey = encodeURIComponent(key);
       let values;
 
       if (typeof unparsedValues === 'undefined') {
-        // TODO Check this - can we send keys that have values? request module thinks 'no'
-        // return key;
-        return '';
-      } else if (Array.isArray(unparsedValues)) {
-        values = unparsedValues.map(encodeURIComponent);
-      } else {
-        values = [encodeURIComponent(unparsedValues)];
+        return key;
       }
 
-      const value = values.join(',');
-      return [encodeURIComponent(key), value].join('=');
+      if (Array.isArray(unparsedValues)) {
+        values = unparsedValues.map(encodeURIComponent);
+        return values
+                .map(value => `${encodedKey}=${value}`)
+                .join('&');
+      }
+
+      values = [encodeURIComponent(unparsedValues)];
+      return [encodeURIComponent(key), values.join(',')].join('=');
     });
 
     return tokens.join('&');
@@ -86,7 +82,7 @@ export default class Request {
     // Parse the URI & headers. Re-parsing is needed to get the formatting changes
     const parsed = urlParser.parse(url);
     if (options.qs) {
-      parsed.search = Request.parseQuery(options.qs, options.useQuerystring);
+      parsed.search = Request.parseQuery(options.qs);
     }
 
     // Make sure the URL is a valid one. Use the version by @stephenhay that
@@ -174,26 +170,26 @@ export default class Request {
 
     // Handle the few known options cases - alter both
     // transport options and generics
-    if (options.json) {
+    if (options.json === true) {
       transOpts.headers['Content-Type'] = 'application/json';
       transOpts.headers.Accept = 'application/json';
 
-      if (typeof body === 'object') {
+      if (typeof body !== typeof undefined) {
         body = JSON.stringify(body);
       }
     }
 
-    if (options.form) {
+    if (typeof options.form !== typeof undefined) {
       if (typeof options.form !== 'object') {
         throw new TypeError('Incompatible form data: ', options.form);
       }
 
-      body = querystring.stringify(options.form);
+      body = Request.parseQuery(options.form);
       transOpts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
       transOpts.headers.Accept = 'application/json';
     }
 
-    if (options.auth) {
+    if (typeof options.auth !== typeof undefined) {
       if (typeof options.auth !== 'object') {
         throw new TypeError('Incompatible auth data', options.auth);
       }
@@ -204,7 +200,7 @@ export default class Request {
       transOpts.auth = `${user}:${password}`;
     }
 
-    if (options.compression) {
+    if (typeof options.compression !== typeof undefined) {
       const comp = options.compression;
       const supported = ['gzip', 'deflate'];
 
@@ -322,32 +318,29 @@ export default class Request {
     const reader = new StreamReader(readStream);
     return reader.readAll()
       .then(
-          body => {
-            if (this.options.verbose) {
-              let decodedBody = body;
-              if (body && typeof body.toString === 'function') {
-                decodedBody = body.toString();
-              }
+        body => {
+          if (this.options.verbose) {
+            const decodedBody = (body instanceof Buffer) ? body.toString() : JSON.stringify(body);
 
-              console.info('Response body:', decodedBody);
-            }
-
-            // Handle success cases
-            if (status >= 200 && status < 300) {
-              return Promise.resolve(this.createResponse(res, body));
-            }
-
-            // All other cases
-            const response = this.createResponse(res, body);
-            const error = new HTTPError('Error in response', status, response);
-            return Promise.reject(error);
-          },
-          error => {
-            // Throw errors received from stream reading as connection errors
-            const message = `Error reading the response: ${error.message}`;
-            return Promise.reject(new ConnectionError(message, error.message));
+            console.info('Response body:', decodedBody);
           }
-        );
+
+          // Handle success cases
+          if (status >= 200 && status < 300) {
+            return Promise.resolve(this.createResponse(res, body));
+          }
+
+          // All other cases
+          const response = this.createResponse(res, body);
+          const error = new HTTPError('Error in response', status, response);
+          return Promise.reject(error);
+        },
+        error => {
+          // Throw errors received from stream reading as connection errors
+          const message = `Error reading the response: ${error.message}`;
+          return Promise.reject(new ConnectionError(message, error.message));
+        }
+      );
   }
 
   /**
@@ -361,14 +354,12 @@ export default class Request {
 
     return new Promise((resolve, reject) => {
       if (_this.options.verbose) {
-        let body = _this.body;
-        if (typeof body === 'object' && typeof body.toString === 'function') {
-          body = body.toString();
-        }
+        const body = _this.body;
+        const decodedBody = (body instanceof Buffer) ? body.toString() : JSON.stringify(body);
 
         console.info('Request URL:', urlParser.format(_this.url));
         console.info('Request headers:', _this.transportOptions.headers);
-        console.info('Request body:', body);
+        console.info('Request body:', decodedBody);
       }
 
       // Choose the transport

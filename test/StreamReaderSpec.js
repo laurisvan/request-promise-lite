@@ -2,7 +2,6 @@
 
 const path = require('path');
 const fs = require('fs');
-const util = require('util');
 const stream = require('stream');
 const expect = require('chai').expect;
 const fixture = require('./fixtures/sample.json');
@@ -18,34 +17,48 @@ describe('StreamReader', () => {
     return reader.readAll()
       .then(output => {
         const str = output.toString();
-
         expect(str).to.equal(JSON.stringify(fixture, null, 2));
       });
   });
 
-  xit('Fails gracefully on invalid stream', () => {
-    function MockStream() {
-      stream.Readable.call(this);
+  it('Reads a that has been chunked by individual writes', () => {
+    class MockStream extends stream.Readable {
+      pipe(writable) {
+        this.writable = writable;
+      }
     }
 
-    MockStream.prototype.pipe = writable => {
-      this.writable = writable;
-    };
+    const reader = new StreamReader(new MockStream());
+    let writeCalled = false;
+    let endCalled = false;
 
-    util.inherits(MockStream, stream.Readable);
+    reader.write('Test string', () => (writeCalled = true));
+    reader.end('Test string', () => (endCalled = true));
+
+    expect(writeCalled).to.equal(true);
+    expect(endCalled).to.equal(true);
+  });
+
+  it('Fails gracefully on invalid stream', () => {
+    class MockStream extends stream.Readable {
+      pipe(writable) {
+        this.writable = writable;
+      }
+    }
+
     const mock = new MockStream();
     const reader = new StreamReader(mock);
     const err = new Error('Bogus error');
-    process.nextTick(() => {
-      reader.emit('error', err);
-    });
+
+    process.nextTick(() => reader.emit('error', err));
 
     return reader.readAll()
-      .then(output => {
-        expect(output).to.match('you should not be here');
-      })
-      .catch(error => {
-        expect(error).to.exist;
-      });
+      .then(
+        output => (expect(output).to.match('you should not be here')),
+        error => {
+          expect(error).to.exist;
+          expect(error).to.equal(err);
+        }
+      );
   });
 });

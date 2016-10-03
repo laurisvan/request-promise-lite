@@ -2,6 +2,7 @@
 [![view on npm](http://img.shields.io/npm/v/request-promise-lite.svg)](https://www.npmjs.org/package/request-promise-lite)
 [![npm module downloads per month](http://img.shields.io/npm/dm/request-promise-lite.svg)](https://www.npmjs.org/package/request-promise-lite)
 [![Dependency Status](https://david-dm.org/laurisvan/request-promise-lite.svg)](https://david-dm.org/laurisvan/request-promise-lite)
+[![Coverage Status](https://coveralls.io/repos/laurisvan/request-promise-lite/badge.svg?branch=master)](https://coveralls.io/r/laurisvan/request-promise-lite?branch=master)
 
 # request-promise-lite
 
@@ -84,52 +85,58 @@ ConnectionError
   ✓ is an an instance of RequestError
 
 Request - test against httpbin.org
-  ✓ Supports HTTP (269ms)
-  ✓ Supports HTTPS (635ms)
-  - Supports HTTP as the default protocol (if none given)
-  ✓ Supports query string parameters in URL (390ms)
-  ✓ Supports booleans, strings, and numbers in query object (403ms)
-  ✓ Accepts custom headers (436ms)
-  - Interprets empty response with JSON request as null
-  ✓ Supports 301-303 redirects (784ms)
-  ✓ Rejects on 4xx errors (258ms)
-  ✓ Limits the maximum number of 301-303 redirects (434ms)
-  ✓ Performs POST requests (271ms)
-  ✓ Performs PUT requests (255ms)
-  ✓ Performs DELETE requests (246ms)
+  ✓ Supports HTTP (317ms)
+  ✓ Supports HTTPS (519ms)
+  ✓ Fails with TypeError if no protocol given
+  ✓ Fails with TypeError on invalid form data
+  ✓ Fails with TypeError on invalid auth data
+  ✓ Fails with TypeError on invalid compression scheme
+  ✓ Supports query string parameters in URL (369ms)
+  ✓ Supports booleans, strings, numbers and undefined in query object (377ms)
+  ✓ Accepts custom headers (374ms)
+  ✓ Interprets empty response with JSON request as null (263ms)
+  ✓ Supports 301-303 redirects (746ms)
+  ✓ Rejects on 4xx errors (257ms)
+  ✓ Limits the maximum number of 301-303 redirects (386ms)
+  ✓ Performs POST requests (247ms)
+  ✓ Performs PUT requests (252ms)
+  ✓ Performs DELETE requests (243ms)
   ✓ Supports TLS with passphrase
-  ✓ Supports HTTP Basic Auth (400ms)
-  ✓ Supports GZIP compression (479ms)
-  ✓ Supports null options (379ms)
-  ✓ Supports 'json' in options (265ms)
-  ✓ Supports 'form' in options (x-www-form-urlencoded) (263ms)
-  ✓ Supports 'resolveWithFullResponse' in options (254ms)
+  ✓ Supports HTTP Basic Auth (397ms)
+  ✓ Supports GZIP compression (403ms)
+  ✓ Supports Deflate compression (386ms)
+  ✓ Supports null options (385ms)
+  ✓ Supports 'json' in options (246ms)
+  ✓ Supports 'form' in options (x-www-form-urlencoded) (254ms)
+  ✓ Supports 'resolveWithFullResponse' in options (255ms)
   - Supports 'multipart' bodies
-  ✓ Supports 'verbose' in options (258ms)
+  ✓ Supports 'verbose' in options (251ms)
 
 Error handling
   ✓ Throws TypeError when constructing with an invalid method
   ✓ Throws TypeError when constructing with an invalid query string
   ✓ Throws TypeError when constructing with an invalid protocol
   ✓ Throws TypeError when constructing with an invalid path
-  ✓ Throws connections to non-existing hosts as ConnectionError
+  ✓ Throws connections to non-existing hosts as ConnectionError (58ms)
   ✓ Throws ConnectionError when client aborted
   ✓ Throws ConnectionError when server aborted
   ✓ Throws ConnectionError on other errors
-  ✓ Throws ParseError when requesting JSON, but getting sth else (289ms)
+  ✓ Throws HTTP on HTTP Error code responses 4xx-5xx
+  ✓ Throws ParseError when requesting JSON, but getting sth else (239ms)
 
 StreamReader
   ✓ Reads a stream fully
-  - Fails gracefully on invalid stream
+  ✓ Reads a that has been chunked by individual writes
+  ✓ Fails gracefully on invalid stream
 
 index.js wrapper
-  ✓ Nested methods - request.get (253ms)
-  ✓ Nested classes - request.Request (385ms)
+  ✓ Nested methods - request.get (249ms)
+  ✓ Nested classes - request.Request (367ms)
   ✓ Nested classes - request.StreamReader
 
 
-40 passing (8s)
-4 pending
+49 passing (8s)
+1 pending
 ```
 
 ## Building

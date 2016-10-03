@@ -37,18 +37,32 @@ describe('Request - test against httpbin.org', () => {
       });
   });
 
-  xit('Supports HTTP as the default protocol (if none given)', () => {
+  it('Fails with TypeError if no protocol given', () => {
     url = 'httpbin.org/get';
-    request = new Request('GET', url, { json: true });
+    expect(() => new Request('GET', url, { json: true }))
+      .to.throw(TypeError);
+  });
 
-    return request.run()
-      .then(response => {
-        expect(response).to.exist;
-      });
+  it('Fails with TypeError on invalid form data', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { form: 'invalidForm' }))
+      .to.throw(TypeError);
+  });
+
+  it('Fails with TypeError on invalid auth data', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { auth: 'invalidForm' }))
+      .to.throw(TypeError);
+  });
+
+  it('Fails with TypeError on invalid compression scheme', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { compression: 'magic' }))
+      .to.throw(TypeError);
   });
 
   it('Supports query string parameters in URL', () => {
-    url = 'https://httpbin.org/get?foo=bar';
+    url = 'https://httpbin.org/get?foo=bar&baz';
     request = new Request('GET', url, { json: true });
 
     return request.run()
@@ -57,12 +71,14 @@ describe('Request - test against httpbin.org', () => {
       });
   });
 
-  it('Supports booleans, strings, and numbers in query object', () => {
+  it('Supports booleans, strings, numbers and undefined in query object', () => {
     url = 'https://httpbin.org/get';
     const qs = {
       text: 'test text',
       number: -1,
       boolean: false,
+      undefined,
+      array: [1, 2, 3],
     };
     request = new Request('GET', url, { json: true, qs });
 
@@ -71,6 +87,8 @@ describe('Request - test against httpbin.org', () => {
         expect(response.args.text).to.equal('test text');
         expect(response.args.number).to.equal('-1');
         expect(response.args.boolean).to.equal('false');
+        expect(response.args.undefined).to.exist;
+        expect(response.args.array).to.eql(['1', '2', '3']);
       });
   });
 
@@ -87,9 +105,9 @@ describe('Request - test against httpbin.org', () => {
       });
   });
 
-  xit('Interprets empty response with JSON request as null', () => {
+  it('Interprets empty response with JSON request as null', () => {
     // FIXME this request will return application/octet-stream that we don't need to parse
-    url = 'http://httpbin.org/stream-bytes/0';
+    url = 'http://httpbin.org/stream/0';
 
     request = new Request('GET', url, { json: true });
     return request.run()
@@ -99,8 +117,11 @@ describe('Request - test against httpbin.org', () => {
   });
 
   it('Supports 301-303 redirects', () => {
-    url = 'https://httpbin.org/redirect-to?url=https://httpbin.org/get';
-    request = new Request('GET', url, { json: true });
+    url = 'https://httpbin.org/redirect-to';
+    request = new Request('GET', url, {
+      json: true,
+      qs: { url: 'https://httpbin.org/get' },
+    });
 
     return request.run()
       .then(response => {
@@ -195,6 +216,16 @@ describe('Request - test against httpbin.org', () => {
     return request.run()
       .then(response => {
         expect(response.gzipped).to.equal(true);
+      });
+  });
+
+  it('Supports Deflate compression', () => {
+    url = 'https://httpbin.org/deflate';
+    request = new Request('GET', url, { json: true, compression: ['deflate'] });
+
+    return request.run()
+      .then(response => {
+        expect(response.deflated).to.equal(true);
       });
   });
 

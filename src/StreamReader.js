@@ -35,13 +35,22 @@ export default class StreamReader extends stream.Writable {
     }
   }
 
-  end(chunk) {
+  end(chunk, encoding, callback) {
+    // Handle optional parameters
+    if (typeof encoding === 'function') {
+      callback = encoding;
+    }
+
     if (chunk) {
       this.buffers.push(chunk);
     }
 
     this.finished = true;
     this.emit('finish');
+
+    if (callback) {
+      callback();
+    }
   }
 
   handleError(error) {
@@ -59,18 +68,14 @@ export default class StreamReader extends stream.Writable {
 
       function cleanup() {
         /* eslint-disable no-use-before-define */
-        _this.removeListener('finish', handleData);
         _this.removeListener('finish', handleFinished);
         _this.removeListener('error', handleError);
 
         /* eslint-enable no-use-before-define */
       }
 
-      function handleData(data) {
-        _this.buffers.push(data);
-      }
-
       function handleError(error) {
+        _this.error = error;
         reject(error);
         cleanup();
       }
@@ -79,18 +84,6 @@ export default class StreamReader extends stream.Writable {
       function handleFinished() {
         resolve(Buffer.concat(_this.buffers));
         cleanup();
-      }
-
-      // Check if the stream has errored already
-      if (_this.error) {
-        reject(_this.error);
-        return;
-      }
-
-      // Check if the readable is drained already
-      if (_this.finished) {
-        resolve(Buffer.concat(_this.buffers));
-        return;
       }
 
       _this.once('finish', handleFinished);

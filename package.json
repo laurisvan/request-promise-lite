@@ -8,8 +8,9 @@
     "url": "https://github.com/laurisvan/request-promise-lite.git"
   },
   "scripts": {
-    "test": "node_modules/gulp/bin/gulp.js test",
-    "build": "node_modules/gulp/bin/gulp.js build"
+    "build": "gulp build",
+    "coveralls": "gulp coverage",
+    "test": "gulp test"
   },
   "author": "Lauri Svan <lauri.svan@sc5.io> (https://github.com/laurisvan)",
   "keywords": [
@@ -20,8 +21,10 @@
   "license": "MIT",
   "devDependencies": {
     "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-istanbul": "^2.0.1",
     "babel-preset-es2015-node4": "^2.1.0",
     "chai": "^3.5.0",
+    "coveralls": "^2.11.14",
     "eslint": "^3.7.0",
     "eslint-config-airbnb": "^12.0.0",
     "eslint-plugin-import": "^1.16",
@@ -29,14 +32,20 @@
     "eslint-plugin-react": "^6.3.0",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
+    "gulp-babel-istanbul": "^1.5.0",
     "gulp-bump": "^2.2.0",
+    "gulp-coveralls": "^0.1.4",
     "gulp-eslint": "^3.0.1",
+    "gulp-inject-modules": "^1.0.0",
+    "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
     "gulp-sequence": "^0.4.5",
     "gulp-sourcemaps": "^1.6.0",
+    "gulp-util": "^3.0.7",
     "jsonpath": "^0.2.2",
     "minimist": "^1.2.0",
     "mocha": "^3.1.0",
+    "nyc": "^8.3.0",
     "proxyquire": "^1.7.10"
   },
   "dependencies": {},
