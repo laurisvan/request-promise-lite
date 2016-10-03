@@ -9,11 +9,15 @@
 This is a lightweight HTTP Promise client, somewhat compatible with
 [request-promise](https://www.npmjs.com/package/request-promise) for node.js 4 or later. It can be used as a replacement where the original client is too heavy, e.g. as part of AWS Lambda functions, or with WebPack.
 
+## Installation
+
+    > npm install --save request-promise-lite
+
 ## Usage
 
 Request in request-promise style:
 
-    var request = require('request-promise-lite)'
+    const request = require('request-promise-lite)'
 
     request.get('https://httpbin.org/get', { json: true })
       .then((response) => {
@@ -22,8 +26,8 @@ Request in request-promise style:
 
 Use bundled classes (Request):
 
-    var url = 'https://httpbin.org/get';
-    var req = new request.Request('GET', url, { json: true });
+    const url = 'https://httpbin.org/get';
+    const req = new request.Request('GET', url, { json: true });
 
     req.run()
       .then((response) => {
@@ -32,9 +36,9 @@ Use bundled classes (Request):
 
 Use bundled classes (StreamReader):
 
-    var filePath = path.resolve(__dirname, './fixtures/sample.json');
-    var stream = fs.createReadStream(filePath);
-    var reader = new request.StreamReader(stream);
+    const filePath = path.resolve(__dirname, './fixtures/sample.json');
+    const stream = fs.createReadStream(filePath);
+    const reader = new request.StreamReader(stream);
 
     reader.readAll()
       .then((output) => {
@@ -44,7 +48,7 @@ Use bundled classes (StreamReader):
 Use bundled classes (superclass RequestError, or specifics ConnectionError,
 HTTPError, ParseError):
 
-    var error = new request.HTTPError('I'm a teapot!', 417, 'teapot');
+    const error = new request.HTTPError('I'm a teapot!', 417, 'teapot');
     throw new request.ParseError(`Invalid JSON: '${body}'`, error.message);
 
 ### Supported options
