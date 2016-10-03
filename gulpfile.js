@@ -1,17 +1,12 @@
 const babel = require('gulp-babel');
-const bump = require('gulp-bump');
 const coveralls = require('gulp-coveralls');
 const eslint = require('gulp-eslint');
 const gulp = require('gulp');
 const istanbul = require('gulp-istanbul');
-const minimist = require('minimist');
 const mocha = require('gulp-mocha');
 const sequence = require('gulp-sequence');
 const sourcemaps = require('gulp-sourcemaps');
 const util = require('gulp-util');
-
-const defaults = { type: 'patch' };
-const options = minimist(process.argv.slice(2), defaults);
 
 gulp.task('eslint', () => {
   return gulp.src(['src/**/*.js', 'test/**/*.js', 'gulpfile.js'])
@@ -42,12 +37,6 @@ gulp.task('mocha', () => {
 gulp.task('coveralls', () => {
   return gulp.src('coverage/**/lcov.info')
     .pipe(coveralls());
-});
-
-gulp.task('bump', () => {
-  return gulp.src('./package.json')
-  .pipe(bump({ type: options.type }))
-  .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', () => {
