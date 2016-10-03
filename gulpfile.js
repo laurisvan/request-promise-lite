@@ -1,5 +1,4 @@
 const babel = require('gulp-babel');
-const bump = require('gulp-bump');
 const coveralls = require('gulp-coveralls');
 const eslint = require('gulp-eslint');
 const gulp = require('gulp');
@@ -42,12 +41,6 @@ gulp.task('mocha', () => {
 gulp.task('coveralls', () => {
   return gulp.src('coverage/**/lcov.info')
     .pipe(coveralls());
-});
-
-gulp.task('bump', () => {
-  return gulp.src('./package.json')
-  .pipe(bump({ type: options.type }))
-  .pipe(gulp.dest('./'));
 });
 
 gulp.task('watch', () => {
