@@ -2,7 +2,7 @@
 [![view on npm](http://img.shields.io/npm/v/request-promise-lite.svg)](https://www.npmjs.org/package/request-promise-lite)
 [![npm module downloads per month](http://img.shields.io/npm/dm/request-promise-lite.svg)](https://www.npmjs.org/package/request-promise-lite)
 [![Dependency Status](https://david-dm.org/laurisvan/request-promise-lite.svg)](https://david-dm.org/laurisvan/request-promise-lite)
-[![Coverage Status](https://coveralls.io/repos/laurisvan/request-promise-lite/badge.svg?branch=master)](https://coveralls.io/r/laurisvan/request-promise-lite?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/laurisvan/request-promise-lite/badge.svg)](https://coveralls.io/github/laurisvan/request-promise-lite)
 
 # request-promise-lite
 
