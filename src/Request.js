@@ -238,13 +238,13 @@ export default class Request {
     if (this.options.json) {
       const str = body.toString();
       if (str.length === 0) {
-        return null;
-      }
-
-      try {
-        body = JSON.parse(str);
-      } catch (error) {
-        throw new ParseError(`Invalid JSON: '${body}'`, error.message);
+        body = null;
+      } else {
+        try {
+          body = JSON.parse(str);
+        } catch (error) {
+          throw new ParseError(`Invalid JSON: '${body}'`, error.message);
+        }
       }
     }
 
