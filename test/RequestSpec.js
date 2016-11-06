@@ -409,6 +409,30 @@ describe('Error handling', () => {
     });
   }
 
+  it('Throws TypeError if no protocol given', () => {
+    url = 'httpbin.org/get';
+    expect(() => new Request('GET', url, { json: true }))
+      .to.throw(TypeError);
+  });
+
+  it('Throws TypeError on invalid form data', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { form: 'invalidForm' }))
+      .to.throw(TypeError);
+  });
+
+  it('Throws TypeError on invalid auth data', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { auth: 'invalidForm' }))
+      .to.throw(TypeError);
+  });
+
+  it('Throws TypeError on invalid compression scheme', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { compression: 'magic' }))
+      .to.throw(TypeError);
+  });
+
   it('Throws TypeError when constructing with an invalid method', () => {
     url = 'http://httpbin.org/get';
     expect(() => new Request('FOO', url, { json: true })).to.throw(TypeError);
