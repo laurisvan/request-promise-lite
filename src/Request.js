@@ -98,14 +98,20 @@ export default class Request {
   }
 
   /**
-   * Parses the HTTP method (GET, POST, PUT or DELETE)
+   * Parses & verifies the HTTP method, as supported by Node.js.
+   * When checked last time, the methods were
+   * CHECKOUT, CONNECT, COPY, DELETE, GET, HEAD, LOCK, M-SEARCH, MERGE,
+   * MKACTIVITY, MKCALENDAR, MKCOL, MOVE, NOTIFY, OPTIONS, PATCH, POST,
+   * PROPFIND, PROPPATCH, PURGE, PUT, REPORT, SEARCH, SUBSCRIBE, TRACE, UNLOCK
+   * and UNSUBSCRIBE.
    *
    * @param {string} method - the HTTP method to use (GET, POST, PUT or DELETE)
    * @return {string} the parsed method as-is, if succesful
    * @throws {TypeError} in case of invalid method
+   * @see https://nodejs.org/api/http.html#http_http_methods
    */
   static parseMethod(method) {
-    if (['GET', 'POST', 'PUT', 'DELETE'].indexOf(method) !== -1) {
+    if (http.METHODS.indexOf(method) !== -1) {
       return method;
     }
 
@@ -115,7 +121,7 @@ export default class Request {
   /**
    * (Private) constructor that initialises a new request, do not call directly.
    *
-   * @param {string} method - the HTTP method to invoke (GET, POST, PUT, DELETE)
+   * @param {string} method - the HTTP method to invoke (GET, POST, PUT etc...)
    * @param {string} url - The URL to connect to
    * @param {object} options - The supplementary options for the HTTP request
    * @throws {TypeError} in case of invalid method, url or options.
@@ -237,13 +243,13 @@ export default class Request {
     if (this.options.json) {
       const str = body.toString();
       if (str.length === 0) {
-        return null;
-      }
-
-      try {
-        body = JSON.parse(str);
-      } catch (error) {
-        throw new ParseError(`Invalid JSON: '${body}'`, error.message);
+        body = null;
+      } else {
+        try {
+          body = JSON.parse(str);
+        } catch (error) {
+          throw new ParseError(`Invalid JSON: '${body}'`, error.message);
+        }
       }
     }
 

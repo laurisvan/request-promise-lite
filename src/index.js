@@ -15,9 +15,13 @@ function handleRequest(method, url, options) {
 }
 
 export default {
+  trace: handleRequest.bind(null, 'TRACE'),
+  head: handleRequest.bind(null, 'HEAD'),
+  options: handleRequest.bind(null, 'OPTIONS'),
   get: handleRequest.bind(null, 'GET'),
-  put: handleRequest.bind(null, 'PUT'),
   post: handleRequest.bind(null, 'POST'),
+  put: handleRequest.bind(null, 'PUT'),
+  patch: handleRequest.bind(null, 'PATCH'),
   del: handleRequest.bind(null, 'DELETE'),
   Request,
   StreamReader,
