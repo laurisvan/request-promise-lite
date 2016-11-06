@@ -105,7 +105,8 @@ export default class Request {
    * @throws {TypeError} in case of invalid method
    */
   static parseMethod(method) {
-    if (['GET', 'POST', 'PUT', 'DELETE'].indexOf(method) !== -1) {
+    if (['TRACE', 'HEAD', 'OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE']
+      .indexOf(method) !== -1) {
       return method;
     }
 
