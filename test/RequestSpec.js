@@ -369,6 +369,35 @@ describe('Request - test against httpbin.org', () => {
   });
 });
 
+describe('Options handling', () => {
+  const envOptions = { env: true, envOverriden: false };
+  const staticOptions = { envOverriden: true };
+
+  beforeEach(() => {
+    process.env.RPL_DEFAULTS = JSON.stringify(envOptions);
+    Request.defaults = staticOptions;
+  });
+
+  it('Overrides built-in defaults by RPL_DEFAULTS env variable', () => {
+    expect(Request.defaults.env).to.equal(true);
+  });
+
+  it('Overrides built-in & env defaults by Request.defaults variable', () => {
+    expect(Request.defaults.envOverriden).to.equal(true);
+    expect(Request.defaults.env).to.equal(true);
+  });
+
+  it('Resets the static defaults when set to {} or null', () => {
+    Request.defaults = {};
+    expect(Request.defaults.envOverriden).to.equal(false);
+  });
+
+  afterEach(() => {
+    delete process.env.RPL_DEFAULTS;
+    Request.defaults = {};
+  });
+});
+
 describe('Error handling', () => {
   let request;
   let url;
@@ -408,6 +437,30 @@ describe('Error handling', () => {
       http: stub,
     });
   }
+
+  it('Throws TypeError if no protocol given', () => {
+    url = 'httpbin.org/get';
+    expect(() => new Request('GET', url, { json: true }))
+      .to.throw(TypeError);
+  });
+
+  it('Throws TypeError on invalid form data', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { form: 'invalidForm' }))
+      .to.throw(TypeError);
+  });
+
+  it('Throws TypeError on invalid auth data', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { auth: 'invalidForm' }))
+      .to.throw(TypeError);
+  });
+
+  it('Throws TypeError on invalid compression scheme', () => {
+    url = 'https://httpbin.org/get';
+    expect(() => new Request('POST', url, { compression: 'magic' }))
+      .to.throw(TypeError);
+  });
 
   it('Throws TypeError when constructing with an invalid method', () => {
     url = 'http://httpbin.org/get';
