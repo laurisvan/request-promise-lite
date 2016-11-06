@@ -9,10 +9,13 @@ const HTTPError = require('../lib/HTTPError');
 const ConnectionError = require('../lib/ConnectionError');
 const ParseError = require('../lib/ParseError');
 
+// See: https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
+
 describe('Request - test against httpbin.org', () => {
 
   let request;
   let url;
+  let options;
   let headers;
   let body;
   let auth;
@@ -35,6 +38,105 @@ describe('Request - test against httpbin.org', () => {
       .then(response => {
         expect(response).to.exist;
       });
+  });
+
+    // Skipped as most of hte endpoints see TRACE calls as a security concern
+  xit('Performs TRACE requests', () => {
+    url = 'http://httpbin.org/get';
+    body = { foo: 'bar' };
+    options = { json: true, body, resolveWithFullResponse: true };
+    request = new Request('TRACE', url, options);
+
+      // Trace should echo whatever is sent back to the user with 200
+    return request.run()
+        .then(response => {
+          expect(response.statusCode).to.equal(200);
+          expect(JSON.parse(response.body).foo).to.equal('bar');
+        });
+  });
+
+  it('Performs HEAD requests', () => {
+    url = 'http://httpbin.org/get';
+    body = { foo: 'bar' };
+    options = { json: true, body, resolveWithFullResponse: true };
+    request = new Request('HEAD', url, options);
+
+      // HEAD should return a response header, identical to HTTP get.
+    return request.run()
+        .then(response => {
+          expect(response.statusCode).to.equal(200);
+          expect(response.body).to.equal(null);
+          expect(response.headers['content-type']).to.equal('application/json');
+        });
+  });
+
+  it('Performs OPTIONS requests', () => {
+    url = 'http://httpbin.org/get';
+    body = { foo: 'bar' };
+    options = { json: true, body, resolveWithFullResponse: true };
+    request = new Request('OPTIONS', url, options);
+
+      // HEAD should return a response header, identical to HTTP get.
+    return request.run()
+        .then(response => {
+          expect(response.statusCode).to.equal(200);
+          expect(response.body).to.equal(null);
+          expect(response.headers.allow).to.equal('HEAD, OPTIONS, GET');
+        });
+  });
+
+  it('Performs GET requests', () => {
+    url = 'http://httpbin.org/get';
+    request = new Request('GET', url, { json: true });
+
+    return request.run()
+        .then(response => {
+          expect(response).to.exist;
+        });
+  });
+
+  it('Performs POST requests', () => {
+    url = 'http://httpbin.org/post';
+    body = { foo: 'bar' };
+    request = new Request('POST', url, { json: true, body });
+
+    return request.run()
+        .then(response => {
+          expect(JSON.parse(response.data).foo).to.equal('bar');
+        });
+  });
+
+  it('Performs PUT requests', () => {
+    url = 'http://httpbin.org/put';
+    body = { foo: 'bar' };
+    request = new Request('PUT', url, { json: true, body });
+
+    return request.run()
+        .then(response => {
+          expect(JSON.parse(response.data).foo).to.equal('bar');
+        });
+  });
+
+  it('Performs PATCH requests', () => {
+    url = 'http://httpbin.org/patch';
+    body = { foo: 'bar' };
+    request = new Request('PATCH', url, { json: true, body });
+
+    return request.run()
+        .then(response => {
+          expect(JSON.parse(response.data).foo).to.equal('bar');
+        });
+  });
+
+  it('Performs DELETE requests', () => {
+    url = 'http://httpbin.org/delete';
+    body = { foo: 'bar' };
+    request = new Request('DELETE', url, { json: true, body });
+
+    return request.run()
+        .then(response => {
+          expect(response).to.exist;
+        });
   });
 
   it('Fails with TypeError if no protocol given', () => {
@@ -153,39 +255,6 @@ describe('Request - test against httpbin.org', () => {
       })
       .then(response => {
         expect(response).to.not.exist;
-      });
-  });
-
-  it('Performs POST requests', () => {
-    url = 'http://httpbin.org/post';
-    body = { foo: 'bar' };
-    request = new Request('POST', url, { json: true, body });
-
-    return request.run()
-      .then(response => {
-        expect(JSON.parse(response.data).foo).to.equal('bar');
-      });
-  });
-
-  it('Performs PUT requests', () => {
-    url = 'http://httpbin.org/put';
-    body = { foo: 'bar' };
-    request = new Request('PUT', url, { json: true, body });
-
-    return request.run()
-      .then(response => {
-        expect(JSON.parse(response.data).foo).to.equal('bar');
-      });
-  });
-
-  it('Performs DELETE requests', () => {
-    url = 'http://httpbin.org/delete';
-    body = { foo: 'bar' };
-    request = new Request('DELETE', url, { json: true, body });
-
-    return request.run()
-      .then(response => {
-        expect(response).to.exist;
       });
   });
 
