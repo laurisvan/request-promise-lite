@@ -369,6 +369,35 @@ describe('Request - test against httpbin.org', () => {
   });
 });
 
+describe('Options handling', () => {
+  const envOptions = { env: true, envOverriden: false };
+  const staticOptions = { envOverriden: true };
+
+  beforeEach(() => {
+    process.env.RPL_DEFAULTS = JSON.stringify(envOptions);
+    Request.defaults = staticOptions;
+  });
+
+  it('Overrides built-in defaults by RPL_DEFAULTS env variable', () => {
+    expect(Request.defaults.env).to.equal(true);
+  });
+
+  it('Overrides built-in & env defaults by Request.defaults variable', () => {
+    expect(Request.defaults.envOverriden).to.equal(true);
+    expect(Request.defaults.env).to.equal(true);
+  });
+
+  it('Resets the static defaults when set to {} or null', () => {
+    Request.defaults = {};
+    expect(Request.defaults.envOverriden).to.equal(false);
+  });
+
+  afterEach(() => {
+    delete process.env.RPL_DEFAULTS;
+    Request.defaults = {};
+  });
+});
+
 describe('Error handling', () => {
   let request;
   let url;

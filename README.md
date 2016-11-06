@@ -69,9 +69,24 @@ const defaults = {
 };
 ```
 
+The options can be modified per-request by passing the options as a parameter
+(see above). Defaults are stored as a static variable that you can access
+through Request.defaults:
+
+    const req = request.Request.defaults.verbose = true;
+
+You can also set the defauls as an environment variable:
+
+    > RPL_DEFAULTS="{ \"verbose\": true}" node myprogram.js
+
+When setting environment variables, please make sure the variable contains a
+proper stringified JSON. The environment will be parsed when requiring
+request.Request for the first time, and it will throw a TypeError on failure.
+
 ## Features
 
-A few tests have been written, with a few options supported. Here's a result of a test run:
+This module already supports a wealth of options. An acceptance test run tells
+the situation best:
 
 ```
 ParseError
@@ -89,44 +104,58 @@ ConnectionError
   ✓ is an an instance of RequestError
 
 Request - test against httpbin.org
-  ✓ Supports HTTP (317ms)
-  ✓ Supports HTTPS (519ms)
+  ✓ Supports HTTP (301ms)
+  ✓ Supports HTTPS (602ms)
+  - Performs TRACE requests
+  ✓ Performs HEAD requests (282ms)
+  ✓ Performs OPTIONS requests (277ms)
+  ✓ Performs GET requests (278ms)
+  ✓ Performs POST requests (274ms)
+  ✓ Performs PUT requests (272ms)
+  ✓ Performs PATCH requests (276ms)
+  ✓ Performs DELETE requests (286ms)
   ✓ Fails with TypeError if no protocol given
   ✓ Fails with TypeError on invalid form data
   ✓ Fails with TypeError on invalid auth data
   ✓ Fails with TypeError on invalid compression scheme
-  ✓ Supports query string parameters in URL (369ms)
-  ✓ Supports booleans, strings, numbers and undefined in query object (377ms)
-  ✓ Accepts custom headers (374ms)
-  ✓ Interprets empty response with JSON request as null (263ms)
-  ✓ Supports 301-303 redirects (746ms)
-  ✓ Rejects on 4xx errors (257ms)
-  ✓ Limits the maximum number of 301-303 redirects (386ms)
-  ✓ Performs POST requests (247ms)
-  ✓ Performs PUT requests (252ms)
-  ✓ Performs DELETE requests (243ms)
+  ✓ Supports query string parameters in URL (415ms)
+  ✓ Supports booleans, strings, numbers and undefined in query object (434ms)
+  ✓ Accepts custom headers (417ms)
+  ✓ Interprets empty response with JSON request as null (270ms)
+  ✓ Supports 301-303 redirects (836ms)
+  ✓ Rejects on 4xx errors (292ms)
+  ✓ Limits the maximum number of 301-303 redirects (416ms)
   ✓ Supports TLS with passphrase
-  ✓ Supports HTTP Basic Auth (397ms)
-  ✓ Supports GZIP compression (403ms)
-  ✓ Supports Deflate compression (386ms)
-  ✓ Supports null options (385ms)
-  ✓ Supports 'json' in options (246ms)
-  ✓ Supports 'form' in options (x-www-form-urlencoded) (254ms)
-  ✓ Supports 'resolveWithFullResponse' in options (255ms)
+  ✓ Supports HTTP Basic Auth (413ms)
+  ✓ Supports GZIP compression (425ms)
+  ✓ Supports Deflate compression (428ms)
+  ✓ Supports null options (461ms)
+  ✓ Supports 'json' in options (284ms)
+  ✓ Supports 'form' in options (x-www-form-urlencoded) (280ms)
+  ✓ Supports 'resolveWithFullResponse' in options (287ms)
   - Supports 'multipart' bodies
-  ✓ Supports 'verbose' in options (251ms)
+  ✓ Supports 'verbose' in options (308ms)
+
+Options handling
+  ✓ Overrides built-in defaults by RPL_DEFAULTS env variable
+  ✓ Overrides built-in & env defaults by Request.defaults variable
+  ✓ Resets the static defaults when set to {} or null
 
 Error handling
+  ✓ Throws TypeError if no protocol given
+  ✓ Throws TypeError on invalid form data
+  ✓ Throws TypeError on invalid auth data
+  ✓ Throws TypeError on invalid compression scheme
   ✓ Throws TypeError when constructing with an invalid method
   ✓ Throws TypeError when constructing with an invalid query string
   ✓ Throws TypeError when constructing with an invalid protocol
   ✓ Throws TypeError when constructing with an invalid path
-  ✓ Throws connections to non-existing hosts as ConnectionError (58ms)
+  ✓ Throws connections to non-existing hosts as ConnectionError
   ✓ Throws ConnectionError when client aborted
   ✓ Throws ConnectionError when server aborted
   ✓ Throws ConnectionError on other errors
   ✓ Throws HTTP on HTTP Error code responses 4xx-5xx
-  ✓ Throws ParseError when requesting JSON, but getting sth else (239ms)
+  ✓ Throws ParseError when requesting JSON, but getting sth else (274ms)
 
 StreamReader
   ✓ Reads a stream fully
@@ -134,13 +163,13 @@ StreamReader
   ✓ Fails gracefully on invalid stream
 
 index.js wrapper
-  ✓ Nested methods - request.get (249ms)
-  ✓ Nested classes - request.Request (367ms)
+  ✓ Nested methods - request.get (283ms)
+  ✓ Nested classes - request.Request (419ms)
   ✓ Nested classes - request.StreamReader
 
 
-49 passing (8s)
-1 pending
+60 passing (10s)
+2 pending
 ```
 
 ## Building

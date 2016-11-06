@@ -7,6 +7,19 @@ import ConnectionError from './ConnectionError';
 import HTTPError from './HTTPError';
 import ParseError from './ParseError';
 
+// Static options & their default values. JavaScript does not permit
+// static attributes, hence defining outside the class scope
+const BUILTIN_DEFAULTS = {
+  headers: {},      // The headers to pass forward (as-is)
+  maxRedirects: 3,  // How many redirects to follow
+  json: false,      // JSON shortcut for req headers & response parsing
+  agent: false,     // The HTTP agent for subsequent calls
+  resolveWithFullResponse: false, // Resolve with the response, not the body
+  verbose: false,   // Whether or not run the requests in verbose mode
+  compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
+};
+let USER_DEFAULTS = {};
+
 /**
  * @typedef {Object} Request
  *
@@ -119,6 +132,37 @@ export default class Request {
   }
 
   /**
+   * Returns the default options for Request.
+   * This is a combination of built-in, environment and user set defaults.
+   *
+   * @return {object} Request defaults
+   */
+  static get defaults() {
+    // Fetch environment defaults
+    const ENV_DEFAULTS = (process.env.RPL_DEFAULTS) ?
+     JSON.parse(process.env.RPL_DEFAULTS) : {};
+
+    return Object.assign({}, BUILTIN_DEFAULTS, ENV_DEFAULTS, USER_DEFAULTS);
+  }
+
+  /**
+   * Sets user specified defaults.
+   * These may be used to override the built-in or environment defaults,
+   * e.g. for toggling verbose mode globally.
+   *
+   * @param {object} defaults - The user specified defaults
+   */
+  static set defaults(defaults) {
+    if (typeof defaults !== 'object') {
+      const message = `Invalid defaults '${defaults}', expecting an object`;
+      throw new TypeError(message);
+    }
+
+    USER_DEFAULTS = defaults;
+    return Request.defaults;
+  }
+
+  /**
    * (Private) constructor that initialises a new request, do not call directly.
    *
    * @param {string} method - the HTTP method to invoke (GET, POST, PUT etc...)
@@ -130,24 +174,13 @@ export default class Request {
     // Defaults
     options = options || {};
 
-    // Options & their default values
-    const defaults = {
-      headers: {},      // The headers to pass forward (as-is)
-      maxRedirects: 3,  // How many redirects to follow
-      json: false,      // JSON shortcut for req headers & response parsing
-      agent: false,     // The HTTP agent for subsequent calls
-      resolveWithFullResponse: false, // Resolve with the response, not the body
-      verbose: false,   // Whether or not run the requests in verbose mode
-      compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
-    };
-
     this.method = Request.parseMethod(method);
     this.url = Request.parseUrl(url, options);
     this.transport = Request.parseTransport(this.url.protocol);
 
     // Parse the input options (using also this.method, url and transport)
     // Updates this.transportOptions and this.body
-    this.options = Object.assign({}, defaults, options);
+    this.options = Object.assign({}, Request.defaults, options);
     this.parseOptions();
   }
 
