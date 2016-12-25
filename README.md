@@ -32,7 +32,7 @@ Use bundled classes (Request):
     req.run()
       .then((response) => {
         console.log(JSON.stringify(response));
-      }
+      });
 
 Use bundled classes (StreamReader):
 
@@ -43,13 +43,13 @@ Use bundled classes (StreamReader):
     reader.readAll()
       .then((output) => {
         console.log(output.toString());
-      }
+      });
 
 Use bundled classes (superclass RequestError, or specifics ConnectionError,
 HTTPError, ParseError):
 
-    const error = new request.HTTPError('I'm a teapot!', 417, 'teapot');
-    throw new request.ParseError(`Invalid JSON: '${body}'`, error.message);
+    const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
+    throw new request.ParseError(Invalid JSON', 'some message');
 
 ### Supported options
 
