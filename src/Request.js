@@ -2,10 +2,13 @@ import http from 'http';
 import https from 'https';
 import urlParser from 'url';
 import zlib from 'zlib';
+import log4 from 'log4';
 import StreamReader from './StreamReader';
 import ConnectionError from './ConnectionError';
 import HTTPError from './HTTPError';
 import ParseError from './ParseError';
+
+const log = log4.getNs('request');
 
 // Static options & their default values. JavaScript does not permit
 // static attributes, hence defining outside the class scope
@@ -307,10 +310,8 @@ export default class Request {
     const status = res.statusCode;
     const _this = this;
 
-    if (this.options.verbose) {
-      console.info('Response status:', res.statusCode);
-      console.info('Response headers:', JSON.stringify(res.headers));
-    }
+    log('Response status: %s', res.statusCode);
+    log('Response headers: %o', res.headers);
 
     // Handle redirects
     if (status >= 301 && status <= 303) {
@@ -358,11 +359,7 @@ export default class Request {
     return reader.readAll()
       .then(
         body => {
-          if (this.options.verbose) {
-            const decodedBody = (body instanceof Buffer) ? body.toString() : JSON.stringify(body);
-
-            console.info('Response body:', decodedBody);
-          }
+          log('Response body: %s', body);
 
           // Handle success cases
           if (status >= 200 && status < 300) {
@@ -392,14 +389,9 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      if (_this.options.verbose) {
-        const body = _this.body;
-        const decodedBody = (body instanceof Buffer) ? body.toString() : JSON.stringify(body);
-
-        console.info('Request URL:', urlParser.format(_this.url));
-        console.info('Request headers:', _this.transportOptions.headers);
-        console.info('Request body:', decodedBody);
-      }
+      log('Request URL: %o', _this.url);
+      log('Request headers: %o', _this.transportOptions.headers);
+      log('Request body: %s', _this.body);
 
       // Choose the transport
       const transport = _this.transport;
