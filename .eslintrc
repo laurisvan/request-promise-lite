@@ -9,7 +9,7 @@
   "extends": ["eslint:recommended", "airbnb"],
   "rules": {
     "no-console": 0,
-  
+
     // airbnb reset
     "import/no-extraneous-dependencies": [
       "error", {
