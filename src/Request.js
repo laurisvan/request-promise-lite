@@ -38,7 +38,7 @@ export default class Request {
    *
    * @param {string} protocol - the name of the protocol (http or https)
    * @return {function} that handles the request (http or https)
-   * @throws {TypeError{ in case anything else than http or https is specified
+   * @throws {TypeError} in case anything else than http or https is specified
    */
   static parseTransport(protocol) {
     switch (protocol) {
