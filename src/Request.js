@@ -8,8 +8,6 @@ import ConnectionError from './ConnectionError';
 import HTTPError from './HTTPError';
 import ParseError from './ParseError';
 
-const log = logger.log;
-
 // Static options & their default values. JavaScript does not permit
 // static attributes, hence defining outside the class scope
 const BUILTIN_DEFAULTS = {
@@ -310,8 +308,8 @@ export default class Request {
     const status = res.statusCode;
     const _this = this;
 
-    log('Response status: %s', res.statusCode);
-    log('Response headers: %o', res.headers);
+    logger.log('Response status: %s', res.statusCode);
+    logger.log('Response headers: %o', res.headers);
 
     // Handle redirects
     if (status >= 301 && status <= 303) {
@@ -359,7 +357,7 @@ export default class Request {
     return reader.readAll()
       .then(
         body => {
-          log('Response body: %s', body);
+          logger.log('Response body: %s', body);
 
           // Handle success cases
           if (status >= 200 && status < 300) {
@@ -389,9 +387,9 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      log('Request URL: %o', _this.url);
-      log('Request headers: %o', _this.transportOptions.headers);
-      log('Request body: %s', _this.body);
+      logger.log('Request URL: %o', _this.url);
+      logger.log('Request headers: %o', _this.transportOptions.headers);
+      logger.log('Request body: %s', _this.body);
 
       // Choose the transport
       const transport = _this.transport;
