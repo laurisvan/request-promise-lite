@@ -42,9 +42,7 @@
     "mocha": "^3.1.2",
     "proxyquire": "^1.7.10"
   },
-  "dependencies": {
-    "log4": "1"
-  },
+  "dependencies": {},
   "engines": {
     "node": ">=4.2"
   }

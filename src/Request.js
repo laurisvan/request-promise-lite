@@ -2,13 +2,13 @@ import http from 'http';
 import https from 'https';
 import urlParser from 'url';
 import zlib from 'zlib';
-import log4 from 'log4';
+import logger from './logger';
 import StreamReader from './StreamReader';
 import ConnectionError from './ConnectionError';
 import HTTPError from './HTTPError';
 import ParseError from './ParseError';
 
-const log = log4.getNs('request');
+const log = logger.log;
 
 // Static options & their default values. JavaScript does not permit
 // static attributes, hence defining outside the class scope
