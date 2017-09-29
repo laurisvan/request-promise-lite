@@ -2,6 +2,7 @@ import http from 'http';
 import https from 'https';
 import urlParser from 'url';
 import zlib from 'zlib';
+import logger from './logger';
 import StreamReader from './StreamReader';
 import ConnectionError from './ConnectionError';
 import HTTPError from './HTTPError';
@@ -35,7 +36,7 @@ export default class Request {
    *
    * @param {string} protocol - the name of the protocol (http or https)
    * @return {function} that handles the request (http or https)
-   * @throws {TypeError{ in case anything else than http or https is specified
+   * @throws {TypeError} in case anything else than http or https is specified
    */
   static parseTransport(protocol) {
     switch (protocol) {
@@ -307,10 +308,8 @@ export default class Request {
     const status = res.statusCode;
     const _this = this;
 
-    if (this.options.verbose) {
-      console.info('Response status:', res.statusCode);
-      console.info('Response headers:', JSON.stringify(res.headers));
-    }
+    logger.log('Response status: %s', res.statusCode);
+    logger.log('Response headers: %o', res.headers);
 
     // Handle redirects
     if (status >= 301 && status <= 303) {
@@ -358,11 +357,7 @@ export default class Request {
     return reader.readAll()
       .then(
         body => {
-          if (this.options.verbose) {
-            const decodedBody = (body instanceof Buffer) ? body.toString() : JSON.stringify(body);
-
-            console.info('Response body:', decodedBody);
-          }
+          logger.log('Response body: %s', body);
 
           // Handle success cases
           if (status >= 200 && status < 300) {
@@ -392,14 +387,9 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      if (_this.options.verbose) {
-        const body = _this.body;
-        const decodedBody = (body instanceof Buffer) ? body.toString() : JSON.stringify(body);
-
-        console.info('Request URL:', urlParser.format(_this.url));
-        console.info('Request headers:', _this.transportOptions.headers);
-        console.info('Request body:', decodedBody);
-      }
+      logger.log('Request URL: %o', _this.url);
+      logger.log('Request headers: %o', _this.transportOptions.headers);
+      logger.log('Request body: %s', _this.body);
 
       // Choose the transport
       const transport = _this.transport;
