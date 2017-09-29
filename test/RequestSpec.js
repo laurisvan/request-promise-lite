@@ -81,7 +81,8 @@ describe('Request - test against httpbin.org', () => {
         .then(response => {
           expect(response.statusCode).to.equal(200);
           expect(response.body).to.equal(null);
-          expect(response.headers.allow).to.equal('HEAD, OPTIONS, GET');
+          expect(response.headers.allow.split(', ').sort())
+            .to.deep.equal('HEAD, OPTIONS, GET'.split(', ').sort());
         });
   });
 
