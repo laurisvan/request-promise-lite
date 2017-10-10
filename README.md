@@ -72,7 +72,6 @@ const defaults = {
   json: false,      // JSON shortcut for req headers & response parsing
   agent: false,     // The HTTP agent for subsequent calls
   resolveWithFullResponse: false, // Resolve with the response, not the body
-  verbose: false,   // Whether or not run the requests in verbose mode
   compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
 };
 ```
@@ -82,16 +81,29 @@ The options can be modified per-request by passing the options as a parameter
 through Request.defaults:
 
 ```javascript
-const req = request.Request.defaults.verbose = true;
+const req = request.Request.defaults.maxRedirects = 3;
 ```
 
 You can also set the defauls as an environment variable:
 
-    > RPL_DEFAULTS="{ \"verbose\": true}" node myprogram.js
+    > RPL_DEFAULTS="{ \"maxRedirects\": 3}" node myprogram.js
 
 When setting environment variables, please make sure the variable contains a
 proper stringified JSON. The environment will be parsed when requiring
 request.Request for the first time, and it will throw a TypeError on failure.
+
+### Logging
+
+By default all requests info is logged to `stdout` via `console.info`.
+This behavior can be overriden by tweaking the `log` function exposed on `request-promise-lite/lib/logger` object
+
+e.g.:
+
+```javascript
+require('request-promise-lite/lib/logger').log = (...messageTokens) => {
+  if (process.env.NODE_ENV === 'dev') console.log.apply(this, messageTokens);
+}
+```
 
 ## Features
 
