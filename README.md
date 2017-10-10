@@ -56,7 +56,7 @@ HTTPError, ParseError):
 
 ```javascript
 const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
-throw new request.ParseError(Invalid JSON', 'some message');
+throw new request.ParseError('Invalid JSON', 'some message');
 ```
 
 ### Supported options
