@@ -95,9 +95,7 @@ request.Request for the first time, and it will throw a TypeError on failure.
 ### Logging
 
 By default all requests info is logged to `stdout` via `console.info`.
-This behavior can be overriden by tweaking the `log` function exposed on `request-promise-lite/lib/logger` object
-
-e.g.:
+This behavior can be overriden by tweaking the `log` function exposed on `request-promise-lite/lib/logger` object, e.g.:
 
 ```javascript
 require('request-promise-lite/lib/logger').log = (...messageTokens) => {
