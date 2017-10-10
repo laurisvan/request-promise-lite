@@ -17,46 +17,54 @@ This is a lightweight HTTP Promise client, somewhat compatible with
 
 Request in request-promise style:
 
-    const request = require('request-promise-lite)'
+```javascript
+const request = require('request-promise-lite)'
 
-    request.get('https://httpbin.org/get', { json: true })
-      .then((response) => {
-        console.log(JSON.stringify(response));
-      });
+request.get('https://httpbin.org/get', { json: true })
+  .then((response) => {
+    console.log(JSON.stringify(response));
+  });
+```
 
 Use bundled classes (Request):
 
-    const url = 'https://httpbin.org/get';
-    const req = new request.Request('GET', url, { json: true });
+```javascript
+const url = 'https://httpbin.org/get';
+const req = new request.Request('GET', url, { json: true });
 
-    req.run()
-      .then((response) => {
-        console.log(JSON.stringify(response));
-      });
+req.run()
+  .then((response) => {
+    console.log(JSON.stringify(response));
+  });
+```
 
 Use bundled classes (StreamReader):
 
-    const filePath = path.resolve(__dirname, './fixtures/sample.json');
-    const stream = fs.createReadStream(filePath);
-    const reader = new request.StreamReader(stream);
+```javascript
+const filePath = path.resolve(__dirname, './fixtures/sample.json');
+const stream = fs.createReadStream(filePath);
+const reader = new request.StreamReader(stream);
 
-    reader.readAll()
-      .then((output) => {
-        console.log(output.toString());
-      });
+reader.readAll()
+  .then((output) => {
+    console.log(output.toString());
+  });
+```
 
 Use bundled classes (superclass RequestError, or specifics ConnectionError,
 HTTPError, ParseError):
 
-    const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
-    throw new request.ParseError(Invalid JSON', 'some message');
+```javascript
+const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
+throw new request.ParseError(Invalid JSON', 'some message');
+```
 
 ### Supported options
 
 Node.js [http/https request options](https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_http_request_options_callback)
 are passed forward as-is. In addition the following shorthand options are supported:
 
-```
+```javascript
 // Options & their default values
 const defaults = {
   headers: {},      // The headers to pass forward (as-is)
@@ -73,7 +81,9 @@ The options can be modified per-request by passing the options as a parameter
 (see above). Defaults are stored as a static variable that you can access
 through Request.defaults:
 
-    const req = request.Request.defaults.verbose = true;
+```javascript
+const req = request.Request.defaults.verbose = true;
+```
 
 You can also set the defauls as an environment variable:
 
