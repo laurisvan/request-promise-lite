@@ -98,8 +98,11 @@ By default all requests info is logged to `stdout` via `console.info`.
 This behavior can be overriden by tweaking the `log` function exposed on `request-promise-lite/lib/logger` object, e.g.:
 
 ```javascript
+const format = require('util').format;
+
 require('request-promise-lite/lib/logger').log = (...messageTokens) => {
-  if (process.env.NODE_ENV === 'dev') console.log.apply(this, messageTokens);
+  // Log only in dev environment
+  if (process.env.NODE_ENV === 'dev') console.info(format(...messageTokens));
 }
 ```
 
