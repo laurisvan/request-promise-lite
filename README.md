@@ -17,46 +17,54 @@ This is a lightweight HTTP Promise client, somewhat compatible with
 
 Request in request-promise style:
 
-    const request = require('request-promise-lite)'
+```javascript
+const request = require('request-promise-lite)'
 
-    request.get('https://httpbin.org/get', { json: true })
-      .then((response) => {
-        console.log(JSON.stringify(response));
-      });
+request.get('https://httpbin.org/get', { json: true })
+  .then((response) => {
+    console.log(JSON.stringify(response));
+  });
+```
 
 Use bundled classes (Request):
 
-    const url = 'https://httpbin.org/get';
-    const req = new request.Request('GET', url, { json: true });
+```javascript
+const url = 'https://httpbin.org/get';
+const req = new request.Request('GET', url, { json: true });
 
-    req.run()
-      .then((response) => {
-        console.log(JSON.stringify(response));
-      });
+req.run()
+  .then((response) => {
+    console.log(JSON.stringify(response));
+  });
+```
 
 Use bundled classes (StreamReader):
 
-    const filePath = path.resolve(__dirname, './fixtures/sample.json');
-    const stream = fs.createReadStream(filePath);
-    const reader = new request.StreamReader(stream);
+```javascript
+const filePath = path.resolve(__dirname, './fixtures/sample.json');
+const stream = fs.createReadStream(filePath);
+const reader = new request.StreamReader(stream);
 
-    reader.readAll()
-      .then((output) => {
-        console.log(output.toString());
-      });
+reader.readAll()
+  .then((output) => {
+    console.log(output.toString());
+  });
+```
 
 Use bundled classes (superclass RequestError, or specifics ConnectionError,
 HTTPError, ParseError):
 
-    const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
-    throw new request.ParseError(Invalid JSON', 'some message');
+```javascript
+const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
+throw new request.ParseError('Invalid JSON', 'some message');
+```
 
 ### Supported options
 
 Node.js [http/https request options](https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_http_request_options_callback)
 are passed forward as-is. In addition the following shorthand options are supported:
 
-```
+```javascript
 // Options & their default values
 const defaults = {
   headers: {},      // The headers to pass forward (as-is)
@@ -64,7 +72,6 @@ const defaults = {
   json: false,      // JSON shortcut for req headers & response parsing
   agent: false,     // The HTTP agent for subsequent calls
   resolveWithFullResponse: false, // Resolve with the response, not the body
-  verbose: false,   // Whether or not run the requests in verbose mode
   compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
 };
 ```
@@ -73,15 +80,31 @@ The options can be modified per-request by passing the options as a parameter
 (see above). Defaults are stored as a static variable that you can access
 through Request.defaults:
 
-    const req = request.Request.defaults.verbose = true;
+```javascript
+const req = request.Request.defaults.maxRedirects = 3;
+```
 
 You can also set the defauls as an environment variable:
 
-    > RPL_DEFAULTS="{ \"verbose\": true}" node myprogram.js
+    > RPL_DEFAULTS="{ \"maxRedirects\": 3}" node myprogram.js
 
 When setting environment variables, please make sure the variable contains a
 proper stringified JSON. The environment will be parsed when requiring
 request.Request for the first time, and it will throw a TypeError on failure.
+
+### Logging
+
+By default all requests info is logged to `stdout` via `console.info`.
+This behavior can be overriden by tweaking the `log` function exposed on `request-promise-lite/lib/logger` object, e.g.:
+
+```javascript
+const format = require('util').format;
+
+require('request-promise-lite/lib/logger').log = (...messageTokens) => {
+  // Log only in dev environment
+  if (process.env.NODE_ENV === 'dev') console.info(format(...messageTokens));
+}
+```
 
 ## Features
 
