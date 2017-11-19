@@ -11,12 +11,12 @@ import ParseError from './ParseError';
 // Static options & their default values. JavaScript does not permit
 // static attributes, hence defining outside the class scope
 const BUILTIN_DEFAULTS = {
-  headers: {},      // The headers to pass forward (as-is)
-  maxRedirects: 3,  // How many redirects to follow
-  json: false,      // JSON shortcut for req headers & response parsing
-  agent: false,     // The HTTP agent for subsequent calls
+  headers: {}, // The headers to pass forward (as-is)
+  maxRedirects: 3, // How many redirects to follow
+  json: false, // JSON shortcut for req headers & response parsing
+  agent: false, // The HTTP agent for subsequent calls
   resolveWithFullResponse: false, // Resolve with the response, not the body
-  verbose: false,   // Whether or not run the requests in verbose mode
+  verbose: false, // Whether or not run the requests in verbose mode
   compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
 };
 let USER_DEFAULTS = {};
@@ -29,7 +29,6 @@ let USER_DEFAULTS = {};
  * usage e.g. with Lambda functions.
  */
 export default class Request {
-
   /**
    * Chooses the given transport type (HTTP or HTTPS) and returns the
    * corresponding handler.
@@ -60,7 +59,7 @@ export default class Request {
       throw new TypeError('Invalid query string map');
     }
 
-    const tokens = (Object.keys(map)).map(key => {
+    const tokens = Object.keys(map).map(key => {
       const unparsedValues = map[key];
       const encodedKey = encodeURIComponent(key);
       let values;
@@ -71,9 +70,7 @@ export default class Request {
 
       if (Array.isArray(unparsedValues)) {
         values = unparsedValues.map(encodeURIComponent);
-        return values
-                .map(value => `${encodedKey}=${value}`)
-                .join('&');
+        return values.map(value => `${encodedKey}=${value}`).join('&');
       }
 
       values = [encodeURIComponent(unparsedValues)];
@@ -140,8 +137,9 @@ export default class Request {
    */
   static get defaults() {
     // Fetch environment defaults
-    const ENV_DEFAULTS = (process.env.RPL_DEFAULTS) ?
-     JSON.parse(process.env.RPL_DEFAULTS) : {};
+    const ENV_DEFAULTS = process.env.RPL_DEFAULTS
+      ? JSON.parse(process.env.RPL_DEFAULTS)
+      : {};
 
     return Object.assign({}, BUILTIN_DEFAULTS, ENV_DEFAULTS, USER_DEFAULTS);
   }
@@ -211,10 +209,10 @@ export default class Request {
     // Handle the few known options cases - alter both
     // transport options and generics
     if (options.json === true) {
-      transOpts.headers['Content-Type'] = 'application/json';
       transOpts.headers.Accept = 'application/json';
 
       if (typeof body !== typeof undefined) {
+        transOpts.headers['Content-Type'] = 'application/json';
         body = JSON.stringify(body);
       }
     }
@@ -244,8 +242,13 @@ export default class Request {
       const comp = options.compression;
       const supported = ['gzip', 'deflate'];
 
-      if (!Array.isArray(comp) || comp.some(v1 => !supported.some(v2 => v1 === v2))) {
-        const message = `Invalid compression scheme, '${comp}', expecting string array`;
+      if (
+        !Array.isArray(comp) ||
+        comp.some(v1 => !supported.some(v2 => v1 === v2))
+      ) {
+        const message = `Invalid compression scheme, '${
+          comp
+        }', expecting string array`;
         throw new TypeError(message);
       }
 
@@ -261,8 +264,7 @@ export default class Request {
    * Dispatches the request.
    */
   run() {
-    return this.handleRequest()
-      .then(response => this.handleResponse(response));
+    return this.handleRequest().then(response => this.handleResponse(response));
   }
 
   /**
@@ -332,7 +334,8 @@ export default class Request {
 
       // Create and dispatch the new request
       const request = new Request(_this.method, location, newOpts);
-      return request.handleRequest()
+      return request
+        .handleRequest()
         .then(response => request.handleResponse(response));
     }
 
@@ -350,31 +353,32 @@ export default class Request {
         readStream = res.pipe(zlib.createInflate());
         break;
       default:
-        return Promise.reject(new ParseError(`Invalid response encoding: '${encoding}'`));
+        return Promise.reject(
+          new ParseError(`Invalid response encoding: '${encoding}'`)
+        );
     }
 
     const reader = new StreamReader(readStream);
-    return reader.readAll()
-      .then(
-        body => {
-          logger.log('Response body: %s', body);
+    return reader.readAll().then(
+      body => {
+        logger.log('Response body: %s', body);
 
-          // Handle success cases
-          if (status >= 200 && status < 300) {
-            return Promise.resolve(this.createResponse(res, body));
-          }
-
-          // All other cases
-          const response = this.createResponse(res, body);
-          const error = new HTTPError('Error in response', status, response);
-          return Promise.reject(error);
-        },
-        error => {
-          // Throw errors received from stream reading as connection errors
-          const message = `Error reading the response: ${error.message}`;
-          return Promise.reject(new ConnectionError(message, error.message));
+        // Handle success cases
+        if (status >= 200 && status < 300) {
+          return Promise.resolve(this.createResponse(res, body));
         }
-      );
+
+        // All other cases
+        const response = this.createResponse(res, body);
+        const error = new HTTPError('Error in response', status, response);
+        return Promise.reject(error);
+      },
+      error => {
+        // Throw errors received from stream reading as connection errors
+        const message = `Error reading the response: ${error.message}`;
+        return Promise.reject(new ConnectionError(message, error.message));
+      }
+    );
   }
 
   /**
