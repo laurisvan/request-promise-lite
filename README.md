@@ -51,6 +51,16 @@ HTTPError, ParseError):
     const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
     throw new request.ParseError(Invalid JSON', 'some message');
 
+Change logging behaviour (works also on per-request basis):
+
+    request.Request.defaults = {
+      logger: {
+        debug: (...tokens) => {
+          console.log('[prefix]', ${util.format(...tokens)});
+        }
+      }
+    }
+
 ### Supported options
 
 Node.js [http/https request options](https://nodejs.org/dist/latest-v4.x/docs/api/http.html#http_http_request_options_callback)
@@ -58,22 +68,29 @@ are passed forward as-is. In addition the following shorthand options are suppor
 
 ```
 // Options & their default values
-const defaults = {
-  headers: {},      // The headers to pass forward (as-is)
-  maxRedirects: 3,  // How many redirects to follow
-  json: false,      // JSON shortcut for req headers & response parsing
-  agent: false,     // The HTTP agent for subsequent calls
-  resolveWithFullResponse: false, // Resolve with the response, not the body
-  verbose: false,   // Whether or not run the requests in verbose mode
+{
+  agent: false, // The HTTP agent for subsequent calls
   compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
+  headers: {}, // The headers to pass forward (as-is)
+  json: false, // JSON shortcut for req headers & response parsing
+  logger: new ConsoleLogger(), // An object that consumes the logging requests
+  maxRedirects: 3, // How many redirects to follow
+  resolveWithFullResponse: false, // Resolve with the response, not the body
+  verbose: false, // Run the requests in verbose mode (produces logs)
 };
 ```
 
 The options can be modified per-request by passing the options as a parameter
 (see above). Defaults are stored as a static variable that you can access
-through Request.defaults:
+and modify through Request.defaults:
 
-    const req = request.Request.defaults.verbose = true;
+    // Get the default options and tinker with them.
+    const options = request.Request.defaults;
+    options.verbose = true;
+    request.Request.defaults = options;
+
+    // Just add a few overrides
+    request.Request.defaults = { verbose: false };
 
 You can also set the defauls as an environment variable:
 
@@ -89,58 +106,58 @@ This module already supports a wealth of options. An acceptance test run tells
 the situation best:
 
 ```
+StreamReader
+  ✓ Reads a stream fully
+  ✓ Reads a that has been chunked by individual writes
+  ✓ Fails gracefully on invalid stream
 ParseError
   ✓ Supports message, status code and response
   ✓ is an an instance of RequestError
-
 HTTPError
   ✓ Supports message, status code and response
   ✓ Stringifies to a meaningful message
   ✓ is an an instance of RequestError
-
 ConnectionError
   ✓ Supports message and raw message
   ✓ Stringifies to a meaningful message
   ✓ is an an instance of RequestError
-
 Request - test against httpbin.org
-  ✓ Supports HTTP (301ms)
-  ✓ Supports HTTPS (602ms)
+  ✓ Supports HTTP (268ms)
+  ✓ Supports HTTPS (575ms)
   - Performs TRACE requests
-  ✓ Performs HEAD requests (282ms)
-  ✓ Performs OPTIONS requests (277ms)
-  ✓ Performs GET requests (278ms)
-  ✓ Performs POST requests (274ms)
-  ✓ Performs PUT requests (272ms)
-  ✓ Performs PATCH requests (276ms)
-  ✓ Performs DELETE requests (286ms)
+  ✓ Performs HEAD requests (255ms)
+  ✓ Performs OPTIONS requests (295ms)
+  ✓ Performs GET requests (258ms)
+  ✓ Performs POST requests (1255ms)
+  ✓ Performs PUT requests (284ms)
+  ✓ Performs PATCH requests (247ms)
+  ✓ Performs DELETE requests (254ms)
   ✓ Fails with TypeError if no protocol given
   ✓ Fails with TypeError on invalid form data
   ✓ Fails with TypeError on invalid auth data
   ✓ Fails with TypeError on invalid compression scheme
-  ✓ Supports query string parameters in URL (415ms)
-  ✓ Supports booleans, strings, numbers and undefined in query object (434ms)
-  ✓ Accepts custom headers (417ms)
-  ✓ Interprets empty response with JSON request as null (270ms)
-  ✓ Supports 301-303 redirects (836ms)
-  ✓ Rejects on 4xx errors (292ms)
-  ✓ Limits the maximum number of 301-303 redirects (416ms)
+  ✓ Supports query string parameters in URL (512ms)
+  ✓ Supports booleans, strings, numbers and undefined in query object (519ms)
+  ✓ Accepts custom headers (528ms)
+  ✓ Interprets empty response with JSON request as null (272ms)
+  ✓ Supports 301-303 redirects (1014ms)
+  ✓ Rejects on 4xx errors (259ms)
+  ✓ Limits the maximum number of 301-303 redirects (520ms)
   ✓ Supports TLS with passphrase
-  ✓ Supports HTTP Basic Auth (413ms)
-  ✓ Supports GZIP compression (425ms)
-  ✓ Supports Deflate compression (428ms)
-  ✓ Supports null options (461ms)
-  ✓ Supports 'json' in options (284ms)
-  ✓ Supports 'form' in options (x-www-form-urlencoded) (280ms)
-  ✓ Supports 'resolveWithFullResponse' in options (287ms)
+  ✓ Supports HTTP Basic Auth (513ms)
+  ✓ Supports GZIP compression (516ms)
+  ✓ Supports Deflate compression (554ms)
+  ✓ Supports null options (524ms)
+  ✓ Supports 'json' in options (393ms)
+  ✓ Supports 'form' in options (x-www-form-urlencoded) (317ms)
+  ✓ Supports 'resolveWithFullResponse' in options (259ms)
   - Supports 'multipart' bodies
-  ✓ Supports 'verbose' in options (308ms)
-
+  ✓ Supports 'verbose' in options (1260ms)
+  ✓ Supports custom loggers (263ms)
 Options handling
   ✓ Overrides built-in defaults by RPL_DEFAULTS env variable
   ✓ Overrides built-in & env defaults by Request.defaults variable
   ✓ Resets the static defaults when set to {} or null
-
 Error handling
   ✓ Throws TypeError if no protocol given
   ✓ Throws TypeError on invalid form data
@@ -155,20 +172,14 @@ Error handling
   ✓ Throws ConnectionError when server aborted
   ✓ Throws ConnectionError on other errors
   ✓ Throws HTTP on HTTP Error code responses 4xx-5xx
-  ✓ Throws ParseError when requesting JSON, but getting sth else (274ms)
-
-StreamReader
-  ✓ Reads a stream fully
-  ✓ Reads a that has been chunked by individual writes
-  ✓ Fails gracefully on invalid stream
-
+  ✓ Throws ParseError when requesting JSON, but getting sth else (259ms)
 index.js wrapper
-  ✓ Nested methods - request.get (283ms)
-  ✓ Nested classes - request.Request (419ms)
+  ✓ Nested methods - request.get (257ms)
+  ✓ Nested classes - request.Request (504ms)
   ✓ Nested classes - request.StreamReader
 
 
-60 passing (10s)
+61 passing (13s)
 2 pending
 ```
 
