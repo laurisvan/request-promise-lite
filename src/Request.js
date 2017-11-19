@@ -311,7 +311,7 @@ export default class Request {
     const _this = this;
 
     logger.log('Response status: %s', res.statusCode);
-    logger.log('Response headers: %o', res.headers);
+    logger.log('Response headers: %j', res.headers);
 
     // Handle redirects
     if (status >= 301 && status <= 303) {
@@ -391,8 +391,8 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      logger.log('Request URL: %o', _this.url);
-      logger.log('Request headers: %o', _this.transportOptions.headers);
+      logger.log('Request URL: %j', _this.url);
+      logger.log('Request headers: %j', _this.transportOptions.headers);
       logger.log('Request body: %s', _this.body);
 
       // Choose the transport
