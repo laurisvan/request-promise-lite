@@ -1,6 +1,6 @@
 'use strict';
 
-describe('request-promise-light', function () {
+describe('request-promise-lite', function () {
   this.timeout(10000);
 
   require('./StreamReaderSpec.js');

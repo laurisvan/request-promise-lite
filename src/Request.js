@@ -2,22 +2,23 @@ import http from 'http';
 import https from 'https';
 import urlParser from 'url';
 import zlib from 'zlib';
-import logger from './logger';
-import StreamReader from './StreamReader';
 import ConnectionError from './ConnectionError';
+import ConsoleLogger from './ConsoleLogger';
 import HTTPError from './HTTPError';
 import ParseError from './ParseError';
+import StreamReader from './StreamReader';
 
 // Static options & their default values. JavaScript does not permit
-// static attributes, hence defining outside the class scope
+// static attributes, hence defining outside the class scope.
 const BUILTIN_DEFAULTS = {
-  headers: {}, // The headers to pass forward (as-is)
-  maxRedirects: 3, // How many redirects to follow
-  json: false, // JSON shortcut for req headers & response parsing
   agent: false, // The HTTP agent for subsequent calls
-  resolveWithFullResponse: false, // Resolve with the response, not the body
-  verbose: false, // Whether or not run the requests in verbose mode
   compression: ['gzip', 'deflate'], // Support GZIP or deflate compression
+  headers: {}, // The headers to pass forward (as-is)
+  json: false, // JSON shortcut for req headers & response parsing
+  logger: new ConsoleLogger(), // An object that consumes the logging requests
+  maxRedirects: 3, // How many redirects to follow
+  resolveWithFullResponse: false, // Resolve with the response, not the body
+  verbose: false, // Run the requests in verbose mode (produces logs)
 };
 let USER_DEFAULTS = {};
 
@@ -147,7 +148,7 @@ export default class Request {
   /**
    * Sets user specified defaults.
    * These may be used to override the built-in or environment defaults,
-   * e.g. for toggling verbose mode globally.
+   * e.g. for adding a verbose logger
    *
    * @param {object} defaults - The user specified defaults
    */
@@ -258,6 +259,10 @@ export default class Request {
     // Update instance attributes
     this.transportOptions = transOpts;
     this.body = body;
+
+    // Determine logging behaviour - in absence of an explicit 'logger', default to
+    // DefaultLogger with verbose mode on/off
+    this.logger = options.logger;
   }
 
   /**
@@ -310,8 +315,10 @@ export default class Request {
     const status = res.statusCode;
     const _this = this;
 
-    logger.log('Response status: %s', res.statusCode);
-    logger.log('Response headers: %j', res.headers);
+    if (this.options.verbose) {
+      this.logger.debug('Response status: %s', res.statusCode);
+      this.logger.debug('Response headers: %j', res.headers);
+    }
 
     // Handle redirects
     if (status >= 301 && status <= 303) {
@@ -361,7 +368,11 @@ export default class Request {
     const reader = new StreamReader(readStream);
     return reader.readAll().then(
       body => {
-        logger.log('Response body: %s', body);
+        if (_this.options.verbose) {
+          const decodedBody =
+            body instanceof Buffer ? body.toString() : JSON.stringify(body);
+          _this.logger.debug('Response body: %s', decodedBody);
+        }
 
         // Handle success cases
         if (status >= 200 && status < 300) {
@@ -391,9 +402,19 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      logger.log('Request URL: %j', _this.url);
-      logger.log('Request headers: %j', _this.transportOptions.headers);
-      logger.log('Request body: %s', _this.body);
+      const body = _this.body;
+
+      if (_this.options.verbose) {
+        const decodedBody =
+          body instanceof Buffer ? body.toString() : JSON.stringify(body);
+
+        _this.logger.debug('Request URL: %j', _this.url);
+        _this.logger.debug(
+          'Request headers: %j',
+          _this.transportOptions.headers
+        );
+        _this.logger.debug('Request body: %s', decodedBody);
+      }
 
       // Choose the transport
       const transport = _this.transport;
