@@ -1,6 +1,6 @@
 {
   "name": "request-promise-lite",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Lightweight, promiseful http/https request client",
   "main": "lib/index.js",
   "repository": {
