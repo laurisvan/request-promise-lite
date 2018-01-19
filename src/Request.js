@@ -21,6 +21,7 @@ const BUILTIN_DEFAULTS = {
   verbose: false, // Run the requests in verbose mode (produces logs)
 };
 let USER_DEFAULTS = {};
+let lastId = 0;
 
 /**
  * @typedef {Object} Request
@@ -174,6 +175,7 @@ export default class Request {
     // Defaults
     options = options || {};
 
+    this.id = (lastId += 1);
     this.method = Request.parseMethod(method);
     this.url = Request.parseUrl(url, options);
     this.transport = Request.parseTransport(this.url.protocol);
@@ -316,8 +318,8 @@ export default class Request {
     const _this = this;
 
     if (this.options.verbose) {
-      this.logger.debug('Response status: %s', res.statusCode);
-      this.logger.debug('Response headers: %j', res.headers);
+      this.logger.debug('Response[%d] status: %s', this.id, res.statusCode);
+      this.logger.debug('Response[%d] headers: %j', this.id, res.headers);
     }
 
     // Handle redirects
@@ -371,7 +373,7 @@ export default class Request {
         if (_this.options.verbose) {
           const decodedBody =
             body instanceof Buffer ? body.toString() : JSON.stringify(body);
-          _this.logger.debug('Response body: %s', decodedBody);
+          _this.logger.debug('Response[%d] body: %s', this.id, decodedBody);
         }
 
         // Handle success cases
@@ -408,12 +410,13 @@ export default class Request {
         const decodedBody =
           body instanceof Buffer ? body.toString() : JSON.stringify(body);
 
-        _this.logger.debug('Request URL: %j', _this.url);
+        _this.logger.debug('Request[%d] URL: %j', this.id, _this.url);
         _this.logger.debug(
-          'Request headers: %j',
+          'Request[%d] headers: %j',
+          this.id,
           _this.transportOptions.headers
         );
-        _this.logger.debug('Request body: %s', decodedBody);
+        _this.logger.debug('Request[%d] body: %s', this.id, decodedBody);
       }
 
       // Choose the transport
