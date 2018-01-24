@@ -1,65 +1,11 @@
-[![Build Status](https://api.travis-ci.org/laurisvan/request-promise-lite.svg?branch=master)](https://travis-ci.org/laurisvan/request-promise-lite)
-[![view on npm](http://img.shields.io/npm/v/request-promise-lite.svg)](https://www.npmjs.org/package/request-promise-lite)
-[![npm module downloads per month](http://img.shields.io/npm/dm/request-promise-lite.svg)](https://www.npmjs.org/package/request-promise-lite)
-[![Dependency Status](https://david-dm.org/laurisvan/request-promise-lite.svg)](https://david-dm.org/laurisvan/request-promise-lite)
-[![Coverage Status](https://coveralls.io/repos/github/laurisvan/request-promise-lite/badge.svg?branch=master)](https://coveralls.io/github/laurisvan/request-promise-lite)
-
-# request-promise-lite
+# request-promise-compatible
 
 This is a lightweight HTTP Promise client, somewhat compatible with
 [request-promise](https://www.npmjs.com/package/request-promise) for node.js 4 or later. It can be used as a replacement where the original client is too heavy, e.g. as part of AWS Lambda functions, or with WebPack.
 
 ## Installation
 
-    > npm install --save request-promise-lite
-
-## Usage
-
-Request in request-promise style:
-
-    const request = require('request-promise-lite)'
-
-    request.get('https://httpbin.org/get', { json: true })
-      .then((response) => {
-        console.log(JSON.stringify(response));
-      });
-
-Use bundled classes (Request):
-
-    const url = 'https://httpbin.org/get';
-    const req = new request.Request('GET', url, { json: true });
-
-    req.run()
-      .then((response) => {
-        console.log(JSON.stringify(response));
-      });
-
-Use bundled classes (StreamReader):
-
-    const filePath = path.resolve(__dirname, './fixtures/sample.json');
-    const stream = fs.createReadStream(filePath);
-    const reader = new request.StreamReader(stream);
-
-    reader.readAll()
-      .then((output) => {
-        console.log(output.toString());
-      });
-
-Use bundled classes (superclass RequestError, or specifics ConnectionError,
-HTTPError, ParseError):
-
-    const error = new request.HTTPError('I\'m a teapot!', 417, 'teapot');
-    throw new request.ParseError(Invalid JSON', 'some message');
-
-Change logging behaviour (works also on per-request basis):
-
-    request.Request.defaults = {
-      logger: {
-        debug: (...tokens) => {
-          console.log('[prefix]', ${util.format(...tokens)});
-        }
-      }
-    }
+    > npm install --save request-promise-compatible
 
 ### Supported options
 
@@ -185,9 +131,5 @@ index.js wrapper
 
 ## Building
 
-The code has been writen in es2015 and transpiled in [Babel](https://babeljs.io/). The transpilation can be run with gulp:
-
-    > gulp build             # If you have gulp in your path
-    > npm run-script build   # Use gulp devDependency
     > gulp watch             # Trigger rebuild & test on file changes
     > gulp test              # Run mocha tests & several validators

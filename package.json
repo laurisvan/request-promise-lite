@@ -1,27 +1,15 @@
 {
-  "name": "request-promise-lite",
-  "version": "0.12.0",
-  "description": "Lightweight, promiseful http/https request client",
+  "name": "request-promise-compatible",
+  "version": "1.0.0",
+  "description": "Fork from request-promise-light with some compatibility fixes",
   "main": "index.js",
   "files": [
     "src/**"
   ],
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/andbaranov/request-promise-lite"
+  "directories": {
+    "test": "test"
   },
-  "scripts": {
-    "build": "gulp build",
-    "coveralls": "gulp coveralls",
-    "test": "gulp test"
-  },
-  "author": "Lauri Svan <lauri.svan@sc5.io> (https://github.com/laurisvan)",
-  "keywords": [
-    "request",
-    "http",
-    "promise"
-  ],
-  "license": "MIT",
+  "dependencies": {},
   "devDependencies": {
     "chai": "^3.5.0",
     "coveralls": "^2.11.14",
@@ -41,8 +29,21 @@
     "mocha": "^3.1.2",
     "proxyquire": "^1.7.10"
   },
-  "dependencies": {},
-  "engines": {
-    "node": ">=4.2"
-  }
+  "scripts": {
+    "test": "gulp test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andbaranov/request-promise-lite.git"
+  },
+  "keywords": [
+    "request",
+    "request-promise"
+  ],
+  "author": "andbaranov",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/andbaranov/request-promise-lite/issues"
+  },
+  "homepage": "https://github.com/andbaranov/request-promise-lite#readme"
 }
