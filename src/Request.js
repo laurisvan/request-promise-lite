@@ -357,7 +357,7 @@ class Request {
         readStream = res.pipe(zlib.createInflate());
         break;
       default:
-        readStream = res;         
+        readStream = res;
     }
 
     const reader = new StreamReader(readStream);

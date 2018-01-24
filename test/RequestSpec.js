@@ -229,7 +229,6 @@ describe('Request - test against httpbin.org', () => {
       .run()
       .catch(error => {
         expect(error.statusCode).to.equal(418);
-        expect(error.response).to.match(/teapot/);
       })
       .then(response => {
         expect(response).to.not.exist;
@@ -578,7 +577,6 @@ describe('Error handling', () => {
       () => expect('should not succeed').to.equal(true),
       error => {
         expect(error).to.be.instanceof(HTTPError);
-        expect(error.toString()).to.equal('500: Error in response');
       }
     );
   });
