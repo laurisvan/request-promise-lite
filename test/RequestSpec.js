@@ -4,10 +4,10 @@ const expect = require('chai').expect;
 const proxyquire = require('proxyquire');
 const EventEmitter = require('events').EventEmitter;
 const Stream = require('stream');
-const Request = require('../lib/Request');
-const HTTPError = require('../lib/HTTPError');
-const ConnectionError = require('../lib/ConnectionError');
-const ParseError = require('../lib/ParseError');
+const Request = require('../src/Request');
+const HTTPError = require('../src/HTTPError');
+const ConnectionError = require('../src/ConnectionError');
+const ParseError = require('../src/ParseError');
 
 // See: https://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
 
@@ -426,7 +426,7 @@ describe('Error handling', () => {
         return fakeClientRequest;
       },
     };
-    return proxyquire('../lib/Request', {
+    return proxyquire('../src/Request', {
       http: stub,
     });
   }
@@ -445,7 +445,7 @@ describe('Error handling', () => {
         return fakeClientRequest;
       },
     };
-    return proxyquire('../lib/Request', {
+    return proxyquire('../src/Request', {
       http: stub,
     });
   }

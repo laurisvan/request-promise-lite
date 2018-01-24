@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const expect = require('chai').expect;
 const fixture = require('./fixtures/sample.json');
-const request = require('../lib');
+const request = require('../src');
 
 describe('index.js wrapper', () => {
 

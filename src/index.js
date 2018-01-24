@@ -1,9 +1,9 @@
-import Request from './Request';
-import StreamReader from './StreamReader';
-import RequestError from './RequestError';
-import ConnectionError from './ConnectionError';
-import HTTPError from './HTTPError';
-import ParseError from './ParseError';
+const Request = require('./Request');
+const StreamReader = require('./StreamReader');
+const RequestError = require('./RequestError');
+const ConnectionError = require('./ConnectionError');
+const HTTPError = require('./HTTPError');
+const ParseError = require('./ParseError');
 
 /**
  * Default handler that creates a new client and executes it
@@ -14,7 +14,7 @@ function handleRequest(method, url, options) {
   return request.run();
 }
 
-export default {
+module.exports = {
   trace: handleRequest.bind(null, 'TRACE'),
   head: handleRequest.bind(null, 'HEAD'),
   options: handleRequest.bind(null, 'OPTIONS'),

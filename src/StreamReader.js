@@ -1,11 +1,11 @@
-import stream from 'stream';
+const stream = require('stream');
 
 /**
  * @typedef {Object} StreamReader
  *
  * An utility to working with streams
  */
-export default class StreamReader extends stream.Writable {
+class StreamReader extends stream.Writable {
 
   /**
    * The default constructor: Saves the element data.
@@ -93,3 +93,5 @@ export default class StreamReader extends stream.Writable {
     return promise;
   }
 }
+
+module.exports = StreamReader;

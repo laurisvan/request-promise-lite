@@ -7,7 +7,7 @@
  *
  * @extends Error
  */
-export default class RequestError extends Error {
+class RequestError extends Error {
 
   /**
    * @return {string} the message - as-is
@@ -16,3 +16,5 @@ export default class RequestError extends Error {
     return this.message;
   }
 }
+
+module.exports = RequestError;

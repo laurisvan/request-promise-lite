@@ -1,4 +1,4 @@
-import RequestError from './RequestError';
+const RequestError = require('./RequestError');
 
 /**
  * @typedef {Object} SocketError
@@ -7,7 +7,7 @@ import RequestError from './RequestError';
  *
  * @extends RequestError
  */
-export default class ParseError extends RequestError {
+class ParseError extends RequestError {
 
   /**
    * RequestError with parsing semantics
@@ -21,3 +21,5 @@ export default class ParseError extends RequestError {
     this.rawMessage = rawMessage;
   }
 }
+
+module.exports = ParseError;

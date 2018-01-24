@@ -5,7 +5,7 @@ const fs = require('fs');
 const stream = require('stream');
 const expect = require('chai').expect;
 const fixture = require('./fixtures/sample.json');
-const StreamReader = require('../lib/StreamReader');
+const StreamReader = require('../src/StreamReader');
 
 describe('StreamReader', () => {
 

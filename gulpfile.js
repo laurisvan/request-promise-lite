@@ -1,11 +1,9 @@
-const babel = require('gulp-babel');
 const coveralls = require('gulp-coveralls');
 const eslint = require('gulp-eslint');
 const gulp = require('gulp');
 const istanbul = require('gulp-istanbul');
 const mocha = require('gulp-mocha');
 const sequence = require('gulp-sequence');
-const sourcemaps = require('gulp-sourcemaps');
 const util = require('gulp-util');
 
 gulp.task('eslint', () => {
@@ -43,21 +41,6 @@ gulp.task('watch', () => {
   return gulp.watch(['src/**/*.js'], ['default']);
 });
 
-gulp.task('default', () => {
-  return gulp.src(['src/**/*.js'])
-    .pipe(sourcemaps.init())
-    .pipe(babel({
-      presets: ['es2015-node4'],
-      plugins: ['add-module-exports'],
-      comments: false,
-      babelrc: false,
-    }))
-    .on('error', util.log)
-    .pipe(sourcemaps.write('.'))
-    .pipe(gulp.dest('lib'));
-});
-
 // Aliases
 gulp.task('validate', ['eslint']);
 gulp.task('test', sequence('validate', 'mocha'));
-gulp.task('build', ['default']);

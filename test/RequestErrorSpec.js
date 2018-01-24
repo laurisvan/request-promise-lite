@@ -1,10 +1,10 @@
 'use strict';
 
 const expect = require('chai').expect;
-const RequestError = require('../lib/RequestError');
-const ConnectionError = require('../lib/ConnectionError');
-const HTTPError = require('../lib/HTTPError');
-const ParseError = require('../lib/ParseError');
+const RequestError = require('../src/RequestError');
+const ConnectionError = require('../src/ConnectionError');
+const HTTPError = require('../src/HTTPError');
+const ParseError = require('../src/ParseError');
 
 describe('ParseError', () => {
   const message = 'foo';

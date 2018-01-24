@@ -1,11 +1,11 @@
-import RequestError from './RequestError';
+const RequestError = require('./RequestError');
 
 /**
  * RequestError with HTTP Semantics
  *
  * @extends RequestError
  */
-export default class HTTPError extends RequestError {
+class HTTPError extends RequestError {
 
   /**
    * RequestError with HTTP Semantics
@@ -30,3 +30,5 @@ export default class HTTPError extends RequestError {
     return `${this.statusCode}: ${this.message}`;
   }
 }
+
+module.exports = HTTPError;

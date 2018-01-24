@@ -21,6 +21,7 @@
     "arrow-body-style": 0,
     "no-param-reassign": 0,
     "no-underscore-dangle": 0,
+    "linebreak-style": 0,
     "import/no-unresolved": 0, // fails in Travis
     "arrow-parens": [2, "as-needed"],
     "arrow-spacing": 2,

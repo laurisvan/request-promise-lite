@@ -1,12 +1,12 @@
-import http from 'http';
-import https from 'https';
-import urlParser from 'url';
-import zlib from 'zlib';
-import ConnectionError from './ConnectionError';
-import ConsoleLogger from './ConsoleLogger';
-import HTTPError from './HTTPError';
-import ParseError from './ParseError';
-import StreamReader from './StreamReader';
+const http = require('http');
+const https = require('https');
+const urlParser = require('url');
+const zlib = require('zlib');
+const ConnectionError = require('./ConnectionError');
+const ConsoleLogger = require('./ConsoleLogger');
+const HTTPError = require('./HTTPError');
+const ParseError = require('./ParseError');
+const StreamReader = require('./StreamReader');
 
 // Static options & their default values. JavaScript does not permit
 // static attributes, hence defining outside the class scope.
@@ -29,7 +29,7 @@ let USER_DEFAULTS = {};
  * problems with WebPack. As a lightweight replacement, it suits well into
  * usage e.g. with Lambda functions.
  */
-export default class Request {
+class Request {
   /**
    * Chooses the given transport type (HTTP or HTTPS) and returns the
    * corresponding handler.
@@ -52,7 +52,7 @@ export default class Request {
   /**
    * Encodes a object key-values pair into an URL query string
    *
-   * @param {options} map - The key-value pairs to parse the options from
+   * @param {options} map - The key-value pairs to parse the options =require(
    * @throws {TypeError} in case of invalid options
    */
   static parseQuery(map) {
@@ -82,10 +82,10 @@ export default class Request {
   }
 
   /**
-   * Parse an URL object from string and query string nested within options.
+   * Parse an URL object =require( string and query string nested within options.
    *
    * @param {string} url - The URL to connect to
-   * @param {object} options - The supplementary options to pick query string from
+   * @param {object} options - The supplementary options to pick query string =require(
    * @throws {TypeError} in case of invalid url or options.
    */
   static parseUrl(url, options) {
@@ -185,7 +185,7 @@ export default class Request {
   }
 
   /**
-   * Parses the request options from this.url, this.method & this.options
+   * Parses the request options =require( this.url, this.method & this.options
    *
    * @throws {TypeError} in case of invalid options.
    */
@@ -194,7 +194,7 @@ export default class Request {
     const url = this.url;
     const options = this.options;
 
-    // Form the transport options from input options
+    // Form the transport options =require( input options
     const transOpts = {
       method,
       hostname: url.hostname,
@@ -249,7 +249,7 @@ export default class Request {
       ) {
         const message = `Invalid compression scheme, '${
           comp
-        }', expecting string array`;
+          }', expecting string array`;
         throw new TypeError(message);
       }
 
@@ -350,9 +350,6 @@ export default class Request {
     const encoding = res.headers['content-encoding'] || '';
     let readStream;
     switch (encoding) {
-      case '':
-        readStream = res;
-        break;
       case 'gzip':
         readStream = res.pipe(zlib.createGunzip());
         break;
@@ -360,9 +357,7 @@ export default class Request {
         readStream = res.pipe(zlib.createInflate());
         break;
       default:
-        return Promise.reject(
-          new ParseError(`Invalid response encoding: '${encoding}'`)
-        );
+        readStream = res;         
     }
 
     const reader = new StreamReader(readStream);
@@ -381,11 +376,11 @@ export default class Request {
 
         // All other cases
         const response = this.createResponse(res, body);
-        const error = new HTTPError('Error in response', status, response);
+        const error = new HTTPError(JSON.stringify(response), status);
         return Promise.reject(error);
       },
       error => {
-        // Throw errors received from stream reading as connection errors
+        // Throw errors received =require( stream reading as connection errors
         const message = `Error reading the response: ${error.message}`;
         return Promise.reject(new ConnectionError(message, error.message));
       }
@@ -443,3 +438,5 @@ export default class Request {
     });
   }
 }
+
+module.exports = Request;

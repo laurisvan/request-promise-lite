@@ -2,7 +2,7 @@
   "name": "request-promise-lite",
   "version": "0.12.0",
   "description": "Lightweight, promiseful http/https request client",
-  "main": "lib/index.js",
+  "main": "index.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/laurisvan/request-promise-lite.git"
@@ -20,8 +20,6 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-preset-es2015-node4": "^2.1.0",
     "chai": "^3.5.0",
     "coveralls": "^2.11.14",
     "eslint": "^3.9.1",
@@ -30,13 +28,11 @@
     "eslint-plugin-jsx-a11y": "^2.2.3",
     "eslint-plugin-react": "^6.5.0",
     "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
     "gulp-coveralls": "^0.1.4",
     "gulp-eslint": "^3.0.1",
     "gulp-istanbul": "^1.1.1",
     "gulp-mocha": "^3.0.1",
     "gulp-sequence": "^0.4.6",
-    "gulp-sourcemaps": "^2.2.0",
     "gulp-util": "^3.0.7",
     "jsonpath": "^0.2.7",
     "mocha": "^3.1.2",
