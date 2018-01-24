@@ -1,6 +1,6 @@
 {
   "name": "request-promise-compatible",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Fork from request-promise-light with some compatibility fixes",
   "main": "index.js",
   "files": [
