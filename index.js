@@ -1,6 +1,6 @@
 const lib = require('./src');
 
-module.exports = (url, options) => {
+module.exports = (options) => {
   const method = options.method || 'get';
-  return lib[method.toLowerCase()].call(null, url, options);
+  return lib[method.toLowerCase()].call(null, options.uri, options);
 };
