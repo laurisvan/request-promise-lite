@@ -60,22 +60,24 @@ class Request {
       throw new TypeError('Invalid query string map');
     }
 
-    const tokens = Object.keys(map).map(key => {
+    const tokens = [];
+
+    Object.keys(map).forEach(key => {
       const unparsedValues = map[key];
       const encodedKey = encodeURIComponent(key);
       let values;
 
       if (typeof unparsedValues === 'undefined') {
-        return key;
+        return;
       }
 
       if (Array.isArray(unparsedValues)) {
         values = unparsedValues.map(encodeURIComponent);
-        return values.map(value => `${encodedKey}=${value}`).join('&');
+        tokens.push(values.map(value => `${encodedKey}=${value}`).join('&'));
       }
 
       values = [encodeURIComponent(unparsedValues)];
-      return [encodeURIComponent(key), values.join(',')].join('=');
+      tokens.push([encodeURIComponent(key), values.join(',')].join('='));
     });
 
     return tokens.join('&');
