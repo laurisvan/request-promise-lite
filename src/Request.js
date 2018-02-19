@@ -73,11 +73,11 @@ class Request {
 
       if (Array.isArray(unparsedValues)) {
         values = unparsedValues.map(encodeURIComponent);
-        tokens.push(values.map(value => `${encodedKey}=${value}`).join('&'));
+        return values.map(value => `${encodedKey}=${value}`).join('&');
       }
 
       values = [encodeURIComponent(unparsedValues)];
-      tokens.push([encodeURIComponent(key), values.join(',')].join('='));
+      return [encodeURIComponent(key), values.join(',')].join('=');
     });
 
     return tokens.join('&');
