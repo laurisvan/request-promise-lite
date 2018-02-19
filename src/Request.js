@@ -60,9 +60,7 @@ class Request {
       throw new TypeError('Invalid query string map');
     }
 
-    const tokens = [];
-
-    Object.keys(map).forEach(key => {
+    const tokens = Object.keys(map).map(key => {
       const unparsedValues = map[key];
       const encodedKey = encodeURIComponent(key);
       let values;
