@@ -4,3 +4,5 @@ coverage/*
 gulpfile.js
 *.map
 .*
+tslint.json
+package-lock.json
