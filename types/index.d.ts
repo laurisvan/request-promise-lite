@@ -16,7 +16,7 @@ export interface IRequestOptions {
 }
 
 export interface IJSONable {
-  [key: string]: string | number | boolean | Array<string | number | IJSONable >;
+  [key: string]: string | number | boolean | null | IJSONable | Array<string | number | boolean | null | IJSONable >;
 }
 
 export class Request {
