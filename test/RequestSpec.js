@@ -361,7 +361,13 @@ describe('Request - test against httpbin.org', () => {
   it('Supports custom loggers', () => {
     let count = 0;
     const logger = {
-      debug: () => {
+      logRequest: () => {
+        count += 1;
+      },
+      logResponseHeaders: () => {
+        count += 1;
+      },
+      logResponseBody: () => {
         count += 1;
       },
     };
