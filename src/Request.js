@@ -17,7 +17,9 @@ const BUILTIN_DEFAULTS = {
   json: false, // JSON shortcut for req headers & response parsing
   logger: new ConsoleLogger(), // An object that consumes the logging requests
   maxRedirects: 3, // How many redirects to follow
+  qs: {}, // The query string parameters to send
   resolveWithFullResponse: false, // Resolve with the response, not the body
+  timeout: 0, // The socket timeout (0 refers to disabled)
   verbose: false, // Run the requests in verbose mode (produces logs)
 };
 let USER_DEFAULTS = {};
@@ -65,7 +67,7 @@ export default class Request {
       const encodedKey = encodeURIComponent(key);
       let values;
 
-      if (typeof unparsedValues === 'undefined') {
+      if (unparsedValues === undefined) {
         return key;
       }
 
@@ -196,14 +198,15 @@ export default class Request {
 
     // Form the transport options from input options
     const transOpts = {
-      method,
-      hostname: url.hostname,
-      port: url.port,
-      path: url.path,
       headers: options.headers,
-      pfx: options.pfx,
+      hostname: url.hostname,
+      method,
       passphrase: options.passphrase,
+      path: url.path,
+      pfx: options.pfx,
+      port: url.port,
       rejectUnauthorized: options.rejectUnauthorized,
+      timeout: options.timeout,
     };
     let body = options.body;
 
@@ -212,13 +215,13 @@ export default class Request {
     if (options.json === true) {
       transOpts.headers.Accept = 'application/json';
 
-      if (typeof body !== typeof undefined) {
+      if (body !== undefined) {
         transOpts.headers['Content-Type'] = 'application/json';
         body = JSON.stringify(body);
       }
     }
 
-    if (typeof options.form !== typeof undefined) {
+    if (options.form !== undefined) {
       if (typeof options.form !== 'object') {
         throw new TypeError('Incompatible form data: ', options.form);
       }
@@ -228,7 +231,7 @@ export default class Request {
       transOpts.headers.Accept = 'application/json';
     }
 
-    if (typeof options.auth !== typeof undefined) {
+    if (options.auth !== undefined) {
       if (typeof options.auth !== 'object') {
         throw new TypeError('Incompatible auth data', options.auth);
       }
@@ -239,7 +242,7 @@ export default class Request {
       transOpts.auth = `${user}:${password}`;
     }
 
-    if (typeof options.compression !== typeof undefined) {
+    if (options.compression !== undefined) {
       const comp = options.compression;
       const supported = ['gzip', 'deflate'];
 
@@ -422,6 +425,12 @@ export default class Request {
 
       // Process the request
       const req = transport.request(transOpts);
+
+      // Add event handlers
+      req.on('timeout', () => {
+        const message = 'Connection timed out';
+        reject(new ConnectionError(message));
+      });
       req.on('abort', () => {
         const rawMessage = 'Client aborted the request';
         const message = `Connection failed: ${rawMessage}`;

@@ -549,6 +549,21 @@ describe('Error handling', () => {
     );
   });
 
+  it('Throws ConnectionError on set timeout when the timeout is expired', () => {
+    url = 'http://httpbin.org/delay/10';
+    request = new Request('GET', url, { json: true, timeout: 1000 });
+
+    return request.run().then(
+      () => expect('should not succeed').to.equal(true),
+      error => {
+        expect(error).to.be.instanceof(ConnectionError);
+        expect(error.message).to.equal(
+          'Connection timed out'
+        );
+      }
+    );
+  });
+
   it('Throws ConnectionError on other errors', () => {
     url = 'http://httpbin.org/get';
     ProxiedRequest = createConnectionErrorStub(
@@ -565,6 +580,7 @@ describe('Error handling', () => {
       }
     );
   });
+
 
   it('Throws HTTP on HTTP Error code responses 4xx-5xx', () => {
     url = 'http://httpbin.org/get';
