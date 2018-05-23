@@ -88,6 +88,7 @@ export default class StreamReader extends stream.Writable {
 
       _this.once('finish', handleFinished);
       _this.once('error', handleError);
+      _this.once('close', handleFinished);
     });
 
     return promise;
