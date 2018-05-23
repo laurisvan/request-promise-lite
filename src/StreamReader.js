@@ -13,13 +13,10 @@ export default class StreamReader extends stream.Writable {
   constructor(readable) {
     super();
     this.buffers = [];
-    this.finished = false;
     this.error = null;
 
     // Pipe the input of the readable stream into this
     readable.pipe(this);
-
-    this.on('error', this.handleError.bind(this));
   }
 
   write(chunk, encoding, callback) {
@@ -45,16 +42,11 @@ export default class StreamReader extends stream.Writable {
       this.buffers.push(chunk);
     }
 
-    this.finished = true;
     this.emit('finish');
 
     if (callback) {
       callback();
     }
-  }
-
-  handleError(error) {
-    this.error = error;
   }
 
   /**
