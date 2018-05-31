@@ -25,14 +25,16 @@ describe('ParseError', () => {
 
 describe('HTTPError', () => {
   const message = 'foo';
+  const errorBody = { error: message };
   const statusCode = 303;
   const response = { foo: 'bar' };
-  const error = new HTTPError(message, statusCode, response);
+  const error = new HTTPError(errorBody, statusCode, response);
 
   it('Supports message, status code and response', () => {
-    expect(error.message).to.equal(message);
+    expect(error.message).to.equal(`${statusCode} - ${JSON.stringify(errorBody)}`);
     expect(error.statusCode).to.equal(statusCode);
     expect(error.response).to.equal(response);
+    expect(error.error).to.equal(errorBody);
   });
 
   it('Stringifies to a meaningful message', () => {

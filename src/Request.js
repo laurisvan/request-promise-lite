@@ -66,7 +66,7 @@ class Request {
       let values;
 
       if (typeof unparsedValues === 'undefined') {
-        return;
+        return key;
       }
 
       if (Array.isArray(unparsedValues)) {
@@ -376,7 +376,8 @@ class Request {
 
         // All other cases
         const response = this.createResponse(res, body);
-        const error = new HTTPError(JSON.stringify(response), status);
+        const errorBody = response.body;
+        const error = new HTTPError(errorBody, status, response);
         return Promise.reject(error);
       },
       error => {
