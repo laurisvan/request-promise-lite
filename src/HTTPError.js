@@ -14,11 +14,13 @@ class HTTPError extends RequestError {
    * @param {number} statusCode HTTP status code
    * @param {object} response The raw response or body
    */
-  constructor(message, statusCode, response) {
+  constructor(errorBody, statusCode, response) {
+    const message = `${statusCode} - ${JSON.stringify(errorBody)}`;
     super(message);
 
     this.statusCode = statusCode;
     this.response = response;
+    this.error = errorBody;
   }
 
   /**
