@@ -376,7 +376,7 @@ class Request {
 
         // All other cases
         const response = this.createResponse(res, body);
-        const errorBody = response.body;
+        const errorBody = response.body || response;
         const error = new HTTPError(errorBody, status, response);
         return Promise.reject(error);
       },
