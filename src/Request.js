@@ -63,10 +63,9 @@ class Request {
     const tokens = Object.keys(map).map(key => {
       const unparsedValues = map[key];
       const encodedKey = encodeURIComponent(key);
-      let values;
 
       if (typeof unparsedValues === 'undefined') {
-        return key;
+        return;
       }
 
       if (Array.isArray(unparsedValues)) {
@@ -77,13 +76,13 @@ class Request {
             });
 
             return parsedItemsArray.join('&');
-          } else {
-            return `${encodedKey}[${arrIndex}]=${encodeURIComponent(item)}`;
           }
+
+          return `${encodedKey}[${arrIndex}]=${encodeURIComponent(item)}`;
         }).join('&');
       }
 
-      values = [encodeURIComponent(unparsedValues)];
+      const values = [encodeURIComponent(unparsedValues)];
       return [encodedKey, values.join(',')].join('=');
     });
 
