@@ -70,8 +70,17 @@ class Request {
       }
 
       if (Array.isArray(unparsedValues)) {
-        values = unparsedValues.map(encodeURIComponent);
-        return values.map(value => `${encodedKey}=${value}`).join('&');
+        return unparsedValues.map((item, arrIndex) => {
+          if (Array.isArray(item)) {
+            const parsedItemsArray = item.map((i, itemIndex) => {
+              return `${encodeURIComponent(key)}[${arrIndex}][${itemIndex}]=${encodeURIComponent(i)}`;
+            });
+
+            return parsedItemsArray.join('&');
+          } else {
+            return `${key}=${unparsedValues.join(',')}`
+          }
+        }).join('&');
       }
 
       values = [encodeURIComponent(unparsedValues)];
