@@ -70,12 +70,21 @@ class Request {
       }
 
       if (Array.isArray(unparsedValues)) {
-        values = unparsedValues.map(encodeURIComponent);
-        return values.map(value => `${encodedKey}=${value}`).join('&');
+        return unparsedValues.map((item, arrIndex) => {
+          if (Array.isArray(item)) {
+            const parsedItemsArray = item.map((i, itemIndex) => {
+              return `${encodedKey}[${arrIndex}][${itemIndex}]=${encodeURIComponent(i)}`;
+            });
+
+            return parsedItemsArray.join('&');
+          } else {
+            return `${encodedKey}[${arrIndex}]=${encodeURIComponent(item)}`;
+          }
+        }).join('&');
       }
 
       values = [encodeURIComponent(unparsedValues)];
-      return [encodeURIComponent(key), values.join(',')].join('=');
+      return [encodedKey, values.join(',')].join('=');
     });
 
     return tokens.join('&');
