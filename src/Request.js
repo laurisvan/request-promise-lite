@@ -73,18 +73,18 @@ class Request {
         return unparsedValues.map((item, arrIndex) => {
           if (Array.isArray(item)) {
             const parsedItemsArray = item.map((i, itemIndex) => {
-              return `${encodeURIComponent(key)}[${arrIndex}][${itemIndex}]=${encodeURIComponent(i)}`;
+              return `${encodedKey}[${arrIndex}][${itemIndex}]=${encodeURIComponent(i)}`;
             });
 
             return parsedItemsArray.join('&');
           } else {
-            return `${key}=${unparsedValues.join(',')}`
+            return `${encodedKey}[${arrIndex}]=${encodeURIComponent(item)}`;
           }
         }).join('&');
       }
 
       values = [encodeURIComponent(unparsedValues)];
-      return [encodeURIComponent(key), values.join(',')].join('=');
+      return [encodedKey, values.join(',')].join('=');
     });
 
     return tokens.join('&');
