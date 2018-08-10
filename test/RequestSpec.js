@@ -358,6 +358,25 @@ describe('Request - test against httpbin.org', () => {
       });
   });
 
+  it("Supports 'timeout' in options", () => {
+    url = 'http://httpbin.org/get';
+    request = new Request('GET', url, {
+      json: true,
+      resolveWithFullResponse: true,
+      timeout: 10,
+    });
+
+    return request.run().then(
+      () => expect('should not succeed').to.equal(true),
+      error => {
+        expect(error).to.be.instanceof(ConnectionError);
+        expect(error.message).to.equal(
+          'Connection failed: Client aborted the request'
+        );
+      }
+    );
+  });
+
   it('Supports custom loggers', () => {
     let count = 0;
     const logger = {

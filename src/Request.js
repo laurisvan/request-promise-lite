@@ -19,6 +19,7 @@ const BUILTIN_DEFAULTS = {
   maxRedirects: 3, // How many redirects to follow
   resolveWithFullResponse: false, // Resolve with the response, not the body
   verbose: false, // Run the requests in verbose mode (produces logs)
+  timeout: 0, // Abort the request if it has not completed within a given number of milliseconds
 };
 let USER_DEFAULTS = {};
 
@@ -204,6 +205,7 @@ export default class Request {
       pfx: options.pfx,
       passphrase: options.passphrase,
       rejectUnauthorized: options.rejectUnauthorized,
+      timeout: options.timeout,
     };
     let body = options.body;
 
@@ -439,6 +441,9 @@ export default class Request {
       req.on('response', response => {
         resolve(response);
       });
+      if (transOpts.timeout > 0) {
+        req.setTimeout(transOpts.timeout, () => req.abort());
+      }
       req.end(this.body);
     });
   }

@@ -77,6 +77,7 @@ are passed forward as-is. In addition the following shorthand options are suppor
   maxRedirects: 3, // How many redirects to follow
   resolveWithFullResponse: false, // Resolve with the response, not the body
   verbose: false, // Run the requests in verbose mode (produces logs)
+  timeout: 0, // Abort the request if it has not completed within a given number of milliseconds
 };
 ```
 
@@ -170,6 +171,7 @@ Error handling
   ✓ Throws connections to non-existing hosts as ConnectionError
   ✓ Throws ConnectionError when client aborted
   ✓ Throws ConnectionError when server aborted
+  ✓ Throws ConnectionError when the timeout is expired
   ✓ Throws ConnectionError on other errors
   ✓ Throws HTTP on HTTP Error code responses 4xx-5xx
   ✓ Throws ParseError when requesting JSON, but getting sth else (259ms)
