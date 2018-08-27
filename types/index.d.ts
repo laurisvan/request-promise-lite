@@ -4,6 +4,11 @@ import http = require('http');
 import https = require('https');
 import stream = require('stream');
 
+export enum CompressionType {
+  GZIP = 'gzip',
+  DEFLATE = 'deflate'
+}
+
 export interface IRequestOptions {
   qs?: { [key: string]: string | number | boolean | Array<string | number> };
   headers?: { [key: string]: string };
@@ -12,11 +17,23 @@ export interface IRequestOptions {
   agent?: boolean | http.Agent | https.Agent;
   resolveWithFullResponse?: boolean;
   verbose?: boolean;
-  compression?: string[];
+  compression?: CompressionType[];
+  auth?: {
+    username: string,
+    password: string
+  };
+
+  /** Send as JSON */
+  body?: { [key: string]: any };
+
+  /** Send as application/x-www-form-urlencoded */
+  form?: { [key: string]: any };
+
+  timeout?: number;
 }
 
 export interface IJSONable {
-  [key: string]: string | number | boolean | null | IJSONable | Array<string | number | boolean | null | IJSONable >;
+  [key: string]: string | number | boolean | null | IJSONable | Array<string | number | boolean | null | IJSONable>;
 }
 
 export class Request {
