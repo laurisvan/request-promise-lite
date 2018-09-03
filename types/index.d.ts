@@ -12,6 +12,18 @@ export enum CompressionType {
   DEFLATE = 'deflate'
 }
 
+/**
+ * Enables logging to whatever logging facility needed.
+ */
+export interface RequestPromiseLiteLogger {
+  /**
+   * Logs the debug level message.
+   *
+   * @param {...tokens} - The message strings or token values in the messages.
+   */
+  debug(...tokens);
+}
+
 export interface IRequestOptions {
 
   /**
@@ -22,7 +34,7 @@ export interface IRequestOptions {
   /**
    * An object that consumes the logging requests
    */
-  logger: any;
+  logger: RequestPromiseLiteLogger;
 
   /**
    * The headers to pass forward (as-is)
