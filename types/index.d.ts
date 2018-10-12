@@ -34,7 +34,7 @@ export interface IRequestOptions {
   /**
    * An object that consumes the logging requests
    */
-  logger: RequestPromiseLiteLogger;
+  logger?: RequestPromiseLiteLogger;
 
   /**
    * The headers to pass forward (as-is)
