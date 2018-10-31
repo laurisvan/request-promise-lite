@@ -18,7 +18,24 @@ export default class ConsoleLogger {
    * @param {...tokens} - The message strings or token values in the messages.
    */
   // eslint-disable-next-line class-methods-use-this
-  debug(...tokens) {
+  log(...tokens) {
     console.info(util.format(...tokens));
+  }
+
+  logRequest(req) {
+    this.log('Request URL: %j', req.url);
+    this.log('Request headers: %j', req.transportOptions.headers);
+    this.log(
+      'Request body: %s',
+      req.body instanceof Buffer ? req.body.toString() : JSON.stringify(req.body)
+    );
+  }
+
+  logResponseHeaders(res) {
+    this.log('Response status: %s', res.statusCode);
+    this.log('Response headers: %j', res.headers);
+  }
+  logResponseBody(body) {
+    this.log('Response body: %s', body instanceof Buffer ? body.toString() : JSON.stringify(body));
   }
 }

@@ -318,8 +318,7 @@ export default class Request {
     const _this = this;
 
     if (this.options.verbose) {
-      this.logger.debug('Response status: %s', res.statusCode);
-      this.logger.debug('Response headers: %j', res.headers);
+      this.logger.logResponseHeaders(res, this);
     }
 
     // Handle redirects
@@ -371,9 +370,7 @@ export default class Request {
     return reader.readAll().then(
       body => {
         if (_this.options.verbose) {
-          const decodedBody =
-            body instanceof Buffer ? body.toString() : JSON.stringify(body);
-          _this.logger.debug('Response body: %s', decodedBody);
+          _this.logger.logResponseBody(body, res, this);
         }
 
         // Handle success cases
@@ -404,18 +401,9 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      const body = _this.body;
 
       if (_this.options.verbose) {
-        const decodedBody =
-          body instanceof Buffer ? body.toString() : JSON.stringify(body);
-
-        _this.logger.debug('Request URL: %j', _this.url);
-        _this.logger.debug(
-          'Request headers: %j',
-          _this.transportOptions.headers
-        );
-        _this.logger.debug('Request body: %s', decodedBody);
+        _this.logger.logRequest(this);
       }
 
       // Choose the transport
