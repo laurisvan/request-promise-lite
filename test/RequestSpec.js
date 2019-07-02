@@ -215,9 +215,9 @@ describe('Request - test against httpbin.org', () => {
   it('Honors http agent provided by user', () => {
     const callTrace = [];
     const agent = new http.Agent();
-    agent.createConnection = (...args) => {
+    agent.createConnection = function () {
       callTrace.push(1);
-      return net.createConnection(...args);
+      return net.createConnection.apply(null, arguments);
     };
     request = new Request('GET', 'http://httpbin.org/get', {
       agent,
