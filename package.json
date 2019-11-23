@@ -9,11 +9,12 @@
     "url": "https://github.com/laurisvan/request-promise-lite.git"
   },
   "scripts": {
-    "build": "gulp build",
-    "coveralls": "gulp coveralls",
-    "test": "gulp test"
+    "build": "babel src -d lib -s",
+    "coverage": "nyc npm test && nyc report --reporter=text-lcov | coveralls",
+    "lint": "eslint src",
+    "test": "mocha"
   },
-  "author": "Lauri Svan <lauri.svan@sc5.io> (https://github.com/laurisvan)",
+  "author": "Lauri Svan <lauri.svan@iki.fi> (https://github.com/laurisvan)",
   "keywords": [
     "request",
     "http",
@@ -21,30 +22,38 @@
   ],
   "license": "MIT",
   "devDependencies": {
-    "babel-plugin-add-module-exports": "^0.2.1",
-    "babel-preset-es2015-node4": "^2.1.0",
-    "chai": "^3.5.0",
-    "coveralls": "^2.11.14",
-    "eslint": "^3.9.1",
-    "eslint-config-airbnb": "^12.0.0",
-    "eslint-plugin-import": "^1.16.0",
-    "eslint-plugin-jsx-a11y": "^2.2.3",
-    "eslint-plugin-react": "^6.5.0",
-    "gulp": "^3.9.1",
-    "gulp-babel": "^6.1.2",
-    "gulp-coveralls": "^0.1.4",
-    "gulp-eslint": "^3.0.1",
-    "gulp-istanbul": "^1.1.1",
-    "gulp-mocha": "^3.0.1",
-    "gulp-sequence": "^0.4.6",
-    "gulp-sourcemaps": "^2.2.0",
-    "gulp-util": "^3.0.7",
-    "jsonpath": "^0.2.7",
-    "mocha": "^3.1.2",
-    "proxyquire": "^1.7.10"
+    "@babel/cli": "^7.7.4",
+    "@babel/core": "^7.7.4",
+    "babel-plugin-add-module-exports": "^1.0.2",
+    "babel-preset-latest-node": "^3.2.1",
+    "chai": "^4.2.0",
+    "coveralls": "^3.0.8",
+    "eslint": "^6.7.0",
+    "eslint-config-airbnb": "^18.0.1",
+    "eslint-plugin-import": "^2.18.2",
+    "eslint-plugin-jsx-a11y": "^6.2.3",
+    "eslint-plugin-react": "^7.16.0",
+    "jsonpath": "^1.0.2",
+    "mocha": "^6.2.2",
+    "nyc": "^14.1.1",
+    "proxyquire": "^2.1.3"
   },
   "dependencies": {},
   "engines": {
-    "node": ">=4.2"
+    "node": ">=6.0"
+  },
+  "babel": {
+    "comments": false,
+    "presets": [
+      [
+        "babel-preset-latest-node",
+        {
+          "target": 6
+        }
+      ]
+    ],
+    "plugins": [
+      "add-module-exports"
+    ]
   }
 }
