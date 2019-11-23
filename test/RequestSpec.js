@@ -2,6 +2,9 @@
 
 const expect = require('chai').expect;
 const proxyquire = require('proxyquire');
+const http = require('http');
+const https = require('https');
+const net = require('net');
 const EventEmitter = require('events').EventEmitter;
 const Stream = require('stream');
 const Request = require('../lib/Request');
@@ -209,15 +212,38 @@ describe('Request - test against httpbin.org', () => {
     });
   });
 
-  it('Supports 301-303 redirects', () => {
-    url = 'https://httpbin.org/redirect-to';
-    request = new Request('GET', url, {
-      json: true,
-      qs: { url: 'https://httpbin.org/get' },
+  it('Honors http agent provided by user', () => {
+    const callTrace = [];
+    const agent = new http.Agent();
+    agent.createConnection = function () {
+      callTrace.push(1);
+      return net.createConnection.apply(null, arguments);
+    };
+    request = new Request('GET', 'http://httpbin.org/get', {
+      agent,
     });
 
     return request.run().then(response => {
       expect(response).to.exist;
+      expect(callTrace).to.have.lengthOf(1);
+    });
+  });
+
+  it('Supports 301-303 redirects', () => {
+    url = 'https://httpbin.org/redirect-to';
+    const keepAliveAgent = new https.Agent({ keepAlive: true });
+    request = new Request('GET', url, {
+      json: true,
+      qs: { url: 'https://httpbin.org/get' },
+      agent: keepAliveAgent,
+    });
+
+
+    return request.run().then(response => {
+      expect(response).to.exist;
+      const socketName = keepAliveAgent.getName({ host: 'httpbin.org', port: 443 });
+      expect(keepAliveAgent.freeSockets[socketName]).to.have.lengthOf(2);
+      expect(keepAliveAgent.sockets[socketName]).to.not.exist;
     });
   });
 

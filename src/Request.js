@@ -198,6 +198,7 @@ export default class Request {
     // Form the transport options from input options
     const transOpts = {
       method,
+      agent: options.agent,
       hostname: url.hostname,
       port: url.port,
       path: url.path,
@@ -326,6 +327,7 @@ export default class Request {
     if (status >= 301 && status <= 303) {
       const location = res.headers.location;
       const options = _this.options;
+      res.resume();
 
       // If we're out of the redirect quota, reject
       if (options.maxRedirects < 1) {
