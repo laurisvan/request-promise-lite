@@ -481,7 +481,7 @@ describe('Error handling', () => {
       request() {
         const fakeClientRequest = new EventEmitter();
         fakeClientRequest.end = function () {
-          const buffer = new Buffer('{ "stub": "output" }');
+          const buffer = new Buffer.from('{ "stub": "output" }');
           const bufferStream = new Stream.PassThrough();
           bufferStream.end(buffer);
 

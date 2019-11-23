@@ -1,7 +1,11 @@
 language: node_js
 node_js:
-- "4.2"
+  # Node 8 is the earliest supported version for eslint
+  # See https://github.com/eslint/eslint/issues/11944
+  - "8"
 before_script:
-  - npm run-script build
-script: npm test
-after_success: npm run coveralls
+  - npm run build
+script:
+  - npm run lint
+  - npm run test
+after_success: npm run coverage

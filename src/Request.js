@@ -143,7 +143,7 @@ export default class Request {
       ? JSON.parse(process.env.RPL_DEFAULTS)
       : {};
 
-    return Object.assign({}, BUILTIN_DEFAULTS, ENV_DEFAULTS, USER_DEFAULTS);
+    return { ...BUILTIN_DEFAULTS, ...ENV_DEFAULTS, ...USER_DEFAULTS };
   }
 
   /**
@@ -181,7 +181,7 @@ export default class Request {
 
     // Parse the input options (using also this.method, url and transport)
     // Updates this.transportOptions and this.body
-    this.options = Object.assign({}, Request.defaults, options);
+    this.options = { ...Request.defaults, ...options };
     this.parseOptions();
   }
 
@@ -191,12 +191,10 @@ export default class Request {
    * @throws {TypeError} in case of invalid options.
    */
   parseOptions() {
-    const method = this.method;
-    const url = this.url;
-    const options = this.options;
+    const { method, options, url } = this;
 
     // Form the transport options from input options
-    const transOpts = {
+    const transportOptions = {
       method,
       agent: options.agent,
       hostname: url.hostname,
@@ -208,64 +206,69 @@ export default class Request {
       rejectUnauthorized: options.rejectUnauthorized,
       timeout: options.timeout,
     };
-    let body = options.body;
+    const {
+      auth,
+      compression,
+      form,
+      logger,
+    } = options;
+    let { body } = options;
 
     // Handle the few known options cases - alter both
     // transport options and generics
     if (options.json === true) {
-      transOpts.headers.Accept = 'application/json';
+      transportOptions.headers.Accept = 'application/json';
 
       if (typeof body !== typeof undefined) {
-        transOpts.headers['Content-Type'] = 'application/json';
+        transportOptions.headers['Content-Type'] = 'application/json';
         body = JSON.stringify(body);
       }
     }
 
-    if (typeof options.form !== typeof undefined) {
-      if (typeof options.form !== 'object') {
-        throw new TypeError('Incompatible form data: ', options.form);
+    if (typeof form !== typeof undefined) {
+      if (typeof form !== 'object') {
+        throw new TypeError('Incompatible form data: ', form);
       }
 
-      body = Request.parseQuery(options.form);
-      transOpts.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-      transOpts.headers.Accept = 'application/json';
+      body = Request.parseQuery(form);
+      transportOptions.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+      transportOptions.headers.Accept = 'application/json';
     }
 
-    if (typeof options.auth !== typeof undefined) {
-      if (typeof options.auth !== 'object') {
-        throw new TypeError('Incompatible auth data', options.auth);
+    if (typeof auth !== typeof undefined) {
+      if (typeof auth !== 'object') {
+        throw new TypeError('Incompatible auth data', auth);
       }
 
-      const user = options.auth.user || options.auth.username;
-      const password = options.auth.pass || options.auth.password;
+      const user = auth.user || auth.username;
+      const password = auth.pass || auth.password;
 
-      transOpts.auth = `${user}:${password}`;
+      transportOptions.auth = `${user}:${password}`;
     }
 
-    if (typeof options.compression !== typeof undefined) {
-      const comp = options.compression;
+    if (typeof compression !== typeof undefined) {
       const supported = ['gzip', 'deflate'];
 
       if (
-        !Array.isArray(comp) ||
-        comp.some(v1 => !supported.some(v2 => v1 === v2))
+        !Array.isArray(compression)
+        || compression.some(v1 => !supported.some(v2 => v1 === v2))
       ) {
         const message = `Invalid compression scheme, '${
-          comp
+          compression
         }', expecting string array`;
         throw new TypeError(message);
       }
 
-      transOpts.headers['Accept-Encoding'] = options.compression.join(', ');
+      transportOptions.headers['Accept-Encoding'] = compression.join(', ');
     }
 
     // Update instance attributes
-    this.transportOptions = transOpts;
+    this.transportOptions = transportOptions;
     this.body = body;
 
     // Determine logging behaviour - in absence of an explicit 'logger', default to
     // DefaultLogger with verbose mode on/off
-    this.logger = options.logger;
+    this.logger = logger;
   }
 
   /**
@@ -325,8 +328,8 @@ export default class Request {
 
     // Handle redirects
     if (status >= 301 && status <= 303) {
-      const location = res.headers.location;
-      const options = _this.options;
+      const { location } = res.headers;
+      const { options } = _this;
       res.resume();
 
       // If we're out of the redirect quota, reject
@@ -337,7 +340,7 @@ export default class Request {
 
       // Recurse with a new request. Don't use the options
       // query string, as it is already encoded in the new location string
-      const newOpts = Object.assign({}, options);
+      const newOpts = { ...options };
       if (typeof newOpts.qs !== 'undefined') {
         delete newOpts.qs;
       }
@@ -365,7 +368,7 @@ export default class Request {
         break;
       default:
         return Promise.reject(
-          new ParseError(`Invalid response encoding: '${encoding}'`)
+          new ParseError(`Invalid response encoding: '${encoding}'`),
         );
     }
 
@@ -373,8 +376,9 @@ export default class Request {
     return reader.readAll().then(
       body => {
         if (_this.options.verbose) {
-          const decodedBody =
-            body instanceof Buffer ? body.toString() : JSON.stringify(body);
+          const decodedBody = body instanceof Buffer
+            ? body.toString()
+            : JSON.stringify(body);
           _this.logger.debug('Response body: %s', decodedBody);
         }
 
@@ -392,7 +396,7 @@ export default class Request {
         // Throw errors received from stream reading as connection errors
         const message = `Error reading the response: ${error.message}`;
         return Promise.reject(new ConnectionError(message, error.message));
-      }
+      },
     );
   }
 
@@ -406,26 +410,26 @@ export default class Request {
     const _this = this;
 
     return new Promise((resolve, reject) => {
-      const body = _this.body;
+      const { body } = _this;
 
       if (_this.options.verbose) {
-        const decodedBody =
-          body instanceof Buffer ? body.toString() : JSON.stringify(body);
+        const decodedBody = body instanceof Buffer
+          ? body.toString()
+          : JSON.stringify(body);
 
         _this.logger.debug('Request URL: %j', _this.url);
         _this.logger.debug(
           'Request headers: %j',
-          _this.transportOptions.headers
+          _this.transportOptions.headers,
         );
         _this.logger.debug('Request body: %s', decodedBody);
       }
 
       // Choose the transport
-      const transport = _this.transport;
-      const transOpts = _this.transportOptions;
+      const { transport, transportOptions } = _this;
 
       // Process the request
-      const req = transport.request(transOpts);
+      const req = transport.request(transportOptions);
       req.on('abort', () => {
         const rawMessage = 'Client aborted the request';
         const message = `Connection failed: ${rawMessage}`;
@@ -443,8 +447,8 @@ export default class Request {
       req.on('response', response => {
         resolve(response);
       });
-      if (transOpts.timeout > 0) {
-        req.setTimeout(transOpts.timeout, () => req.abort());
+      if (transportOptions.timeout > 0) {
+        req.setTimeout(transportOptions.timeout, () => req.abort());
       }
       req.end(this.body);
     });
