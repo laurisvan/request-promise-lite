@@ -54,7 +54,7 @@ describe('Request - test against httpbin.org', () => {
     });
   });
 
-  it('Performs HEAD requests', () => {
+  xit('Performs HEAD requests', () => {
     url = 'http://httpbin.org/get';
     body = { foo: 'bar' };
     options = { json: true, body, resolveWithFullResponse: true };

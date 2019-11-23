@@ -123,38 +123,40 @@ ConnectionError
   ✓ Stringifies to a meaningful message
   ✓ is an an instance of RequestError
 Request - test against httpbin.org
-  ✓ Supports HTTP (268ms)
-  ✓ Supports HTTPS (575ms)
+  ✓ Supports HTTP (425ms)
+  ✓ Supports HTTPS (712ms)
   - Performs TRACE requests
-  ✓ Performs HEAD requests (255ms)
-  ✓ Performs OPTIONS requests (295ms)
-  ✓ Performs GET requests (258ms)
-  ✓ Performs POST requests (1255ms)
-  ✓ Performs PUT requests (284ms)
-  ✓ Performs PATCH requests (247ms)
-  ✓ Performs DELETE requests (254ms)
+  - Performs HEAD requests
+  ✓ Performs OPTIONS requests (381ms)
+  ✓ Performs GET requests (332ms)
+  ✓ Performs POST requests (306ms)
+  ✓ Performs PUT requests (267ms)
+  ✓ Performs PATCH requests (346ms)
+  ✓ Performs DELETE requests (409ms)
   ✓ Fails with TypeError if no protocol given
   ✓ Fails with TypeError on invalid form data
   ✓ Fails with TypeError on invalid auth data
   ✓ Fails with TypeError on invalid compression scheme
-  ✓ Supports query string parameters in URL (512ms)
-  ✓ Supports booleans, strings, numbers and undefined in query object (519ms)
-  ✓ Accepts custom headers (528ms)
-  ✓ Interprets empty response with JSON request as null (272ms)
-  ✓ Supports 301-303 redirects (1014ms)
-  ✓ Rejects on 4xx errors (259ms)
-  ✓ Limits the maximum number of 301-303 redirects (520ms)
+  ✓ Supports query string parameters in URL (815ms)
+  ✓ Supports booleans, strings, numbers and undefined in query object (1799ms)
+  ✓ Accepts custom headers (556ms)
+  ✓ Interprets empty response with JSON request as null (409ms)
+  ✓ Honors http agent provided by user (410ms)
+  ✓ Supports 301-303 redirects (1431ms)
+  ✓ Rejects on 4xx errors (399ms)
+  ✓ Limits the maximum number of 301-303 redirects (612ms)
   ✓ Supports TLS with passphrase
-  ✓ Supports HTTP Basic Auth (513ms)
-  ✓ Supports GZIP compression (516ms)
-  ✓ Supports Deflate compression (554ms)
-  ✓ Supports null options (524ms)
-  ✓ Supports 'json' in options (393ms)
-  ✓ Supports 'form' in options (x-www-form-urlencoded) (317ms)
-  ✓ Supports 'resolveWithFullResponse' in options (259ms)
+  ✓ Supports HTTP Basic Auth (592ms)
+  ✓ Supports GZIP compression (676ms)
+  ✓ Supports Deflate compression (585ms)
+  ✓ Supports null options (687ms)
+  ✓ Supports 'json' in options (321ms)
+  ✓ Supports 'form' in options (x-www-form-urlencoded) (422ms)
+  ✓ Supports 'resolveWithFullResponse' in options (307ms)
   - Supports 'multipart' bodies
-  ✓ Supports 'verbose' in options (1260ms)
-  ✓ Supports custom loggers (263ms)
+  ✓ Supports 'verbose' in options (408ms)
+  ✓ Supports 'timeout' in options
+  ✓ Supports custom loggers (288ms)
 Options handling
   ✓ Overrides built-in defaults by RPL_DEFAULTS env variable
   ✓ Overrides built-in & env defaults by Request.defaults variable
@@ -171,18 +173,17 @@ Error handling
   ✓ Throws connections to non-existing hosts as ConnectionError
   ✓ Throws ConnectionError when client aborted
   ✓ Throws ConnectionError when server aborted
-  ✓ Throws ConnectionError when the timeout is expired
   ✓ Throws ConnectionError on other errors
   ✓ Throws HTTP on HTTP Error code responses 4xx-5xx
-  ✓ Throws ParseError when requesting JSON, but getting sth else (259ms)
+  ✓ Throws ParseError when requesting JSON, but getting sth else (280ms)
 index.js wrapper
-  ✓ Nested methods - request.get (257ms)
-  ✓ Nested classes - request.Request (504ms)
+  ✓ Nested methods - request.get (417ms)
+  ✓ Nested classes - request.Request (743ms)
   ✓ Nested classes - request.StreamReader
 
 
-61 passing (13s)
-2 pending
+62 passing (15s)
+3 pending
 ```
 
 ## Building
